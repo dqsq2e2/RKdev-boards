@@ -11,3 +11,5 @@
 源码沿用被迁移文件的 SPDX 或源树的相应许可。Rockchip DDR/BL31、厂商无线与图形固件均从板包声明的来源另行获取；其再分发按相应固件条件处理。这个仓库只附上文件名、上游 URL（如可获取）及校验和。
 
 I3588 的 `bl31.elf` 来自 Trusted Firmware-A 提交 `a881364e03b0c5b3a8c00f20ad6fbdda53a57031` 的 RK3588 构建。由适配者提供与板包 SHA-256 一致的文件。
+
+I3588 的 HDMI 内核 Logo 沿用旧恢复源码 `1f0455e8c` 的 `drivers/video/logo/logo_linux_clut224.ppm`。LAN/WAN、Wi-Fi AP、HDMI 地址提示和 sshd/getty 启动设置对应 `840c4d9ab` 及原配套恢复镜像。它们是板包内容；构建仍使用 RKdev 锁定的上游源码。

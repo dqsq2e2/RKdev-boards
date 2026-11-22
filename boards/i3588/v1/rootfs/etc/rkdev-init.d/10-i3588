@@ -1,0 +1,9 @@
+#!/bin/sh
+hostname 9tripod-i3588-recovery
+mkdir -p /run/sshd /var/empty
+chmod 755 /var/empty
+syslogd -C256
+. /usr/share/i3588/issue
+if ! (printf 'root:root\n' | busybox chpasswd && ssh-keygen -A && /usr/sbin/sshd); then
+    logger -t i3588 'SSH setup failed; continuing recovery startup'
+fi

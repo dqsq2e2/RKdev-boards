@@ -26,6 +26,7 @@
       "linux": {
         "config": "linux.config",
         "dts": "rk3588-9tripod-I3588.dts",
+        "overlay": "linux-overlay",
         "patches": [
           "linux-brcmfmac.patch"
         ]
@@ -98,5 +99,23 @@
       }
     }
   },
-  "rootfs_overlay": "rootfs"
+  "rootfs_overlay": "rootfs",
+  "rootfs_packages": [
+    "dnsmasq",
+    "ethtool",
+    "hostapd",
+    "htop",
+    "iperf3",
+    "iproute2",
+    "iptables-legacy",
+    "iw",
+    "openssh-client",
+    "openssh-server",
+    "openssh-sftp-server",
+    "pciutils",
+    "u-boot-tools",
+    "wireless-regdb",
+    "wpa_supplicant",
+    "xfsprogs"
+  ]
 }

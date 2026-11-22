@@ -14,7 +14,12 @@
 
 ```sh
 python3 ../RKdev/tools/rkdev.py lint --board boards/phx-r3588/v1 --profile emmc
-sudo env "PATH=$PATH" python3 ../RKdev/tools/rkdev.py build +  --board boards/phx-r3588/v1 --profile emmc --locked +  --firmware-dir /path/to/fw/brcm --firmware-dir /path/to/fw/mali +  --firmware-dir /path/to/fw/regdb --out out/phx
+sudo env "PATH=$PATH" python3 ../RKdev/tools/rkdev.py build \
+  --board boards/phx-r3588/v1 --profile emmc --locked \
+  --firmware-dir /path/to/fw/brcm --firmware-dir /path/to/fw/mali \
+  --firmware-dir /path/to/fw/regdb --out out/phx
 ```
 
 板包构建可使用 [RKdev 的板包接口](https://github.com/dqsq2e2/RKdev/blob/main/docs/board-package.md)。提交时附上所用 RKdev 提交、构建日志和 `verify` 结果。固件仍为开发候选，既有项目的旧版实机结果不代表 RKdev 镜像已通过实机验收。
+
+I3588 恢复系统的 PCIe 网口使用 WAN DHCP。板载网口与 `I3588-Recovery` Wi-Fi 桥接；接入后从 `http://192.168.88.1/` 进入刷机页，Wi-Fi 密码是 `I3588recovery`。HDMI 显示原有 Logo、LAN/Wi-Fi 入口和实际 WAN 地址。SSH、串口及 HDMI 控制台沿用 `root/root`；刷机页直接打开。
