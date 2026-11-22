@@ -3894,13 +3894,6 @@
 			#interrupt-cells = <0x2>;
 			gpio-line-names = "DSI1_08", "DSI1_14", "", "DSI1_12", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "CSI0_11", "CSI0_12", "", "", "", "", "", "", "", "", "", "";
 			phandle = <0x8f>;
-			/* Keep the slot-wide PERST# released across both root ports. */
-			pcie3-slot-perst {
-				gpio-hog;
-				gpios = <0xe 0x0>;
-				output-high;
-				line-name = "pcie3-slot-perst";
-			};
 		};
 		pcfg-pull-up {
 			bias-pull-up;
@@ -6866,7 +6859,7 @@
 		max-link-speed = <0x3>;
 		msi-map = <0x0 0x13a 0x0 0x1000>;
 		iommu-map = <0x0 0x95 0x0 0x1000>;
-		num-lanes = <0x2>;
+		num-lanes = <0x4>;
 		phys = <0x13b>;
 		phy-names = "pcie-phy";
 		power-domains = <0x22 0x22>;
@@ -6876,6 +6869,7 @@
 		resets = <0x21 0x126 0x21 0x12b>;
 		reset-names = "pwr", "pipe";
 		status = "okay";
+		reset-gpios = <0x8f 0xe 0x0>;
 		vpcie3v3-supply = <0x13c>;
 		phandle = <0x3d1>;
 		legacy-interrupt-controller {
@@ -6931,8 +6925,9 @@
 		reg-names = "dbi", "apb", "config";
 		resets = <0x21 0x127 0x21 0x12c>;
 		reset-names = "pwr", "pipe";
-		status = "okay";
+		status = "disabled";
 		phandle = <0x3d3>;
+		reset-gpios = <0x8f 0xe 0x0>;
 		vpcie3v3-supply = <0x13c>;
 		legacy-interrupt-controller {
 			interrupt-controller;
@@ -7131,7 +7126,7 @@
 		rockchip,phy-grf = <0x14a>;
 		status = "okay";
 		phandle = <0x13b>;
-		data-lanes = <0x1 0x1 0x2 0x2>;
+		data-lanes = <0x1 0x1 0x1 0x1>;
 	};
 	opp-table-cluster0 {
 		compatible = "operating-points-v2";

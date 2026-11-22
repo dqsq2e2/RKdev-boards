@@ -81,7 +81,7 @@
           "sha256": "c1f0896b9e2f0d4154406acd650f6c946fdd80cfc32381fb5072e9952933367a"
         },
         "brcm/BCM4362A2.hcd": {
-          "file": "BCM4362A2.hcd",
+          "url": "https://raw.githubusercontent.com/armbian/firmware/db8cc456dad5ad511b04f8a5130acda392cad20b/brcm/BCM4362A2.hcd",
           "sha256": "18901a5bef1d418b6895e92d0afae36234f4160b237465dfca3d75e9844e93ef"
         },
         "brcm/brcmfmac43752-pcie.bin": {

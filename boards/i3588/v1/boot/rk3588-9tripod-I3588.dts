@@ -134,25 +134,16 @@
 };
 
 &pcie30phy {
-	data-lanes = <1 1 2 2>;
 	status = "okay";
 };
 
 &pcie3x4 {
-	num-lanes = <2>;
+	num-lanes = <4>;
+	reset-gpios = <&gpio4 RK_PB6 GPIO_ACTIVE_HIGH>;
 	vpcie3v3-supply = <&vcc3v3_pcie30>;
 	status = "okay";
 };
 
-/* U8100 has one PERST# for both halves; sequence it once at board init. */
-&gpio4 {
-	pcie3-slot-perst {
-		gpio-hog;
-		gpios = <RK_PB6 GPIO_ACTIVE_HIGH>;
-		output-high;
-		line-name = "pcie3-slot-perst";
-	};
-};
 
 &saradc {
 	vref-supply = <&avcc_1v8_s0>;
@@ -279,9 +270,5 @@
     reset-gpios = <&gpio4 RK_PA2 GPIO_ACTIVE_HIGH>;
     status = "okay";
 };
-/* Slot lanes 2/3 form the second x2 root port. */
-&pcie3x2 {
-	num-lanes = <2>;
-	vpcie3v3-supply = <&vcc3v3_pcie30>;
-	status = "okay";
-};
+/* No separate x2 connector exists: the slot uses all four PCIe3 lanes. */
+&pcie3x2 { status = "disabled"; };

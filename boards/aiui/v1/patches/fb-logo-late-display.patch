@@ -1,0 +1,59 @@
+--- a/drivers/video/logo/logo.c
++++ b/drivers/video/logo/logo.c
+@@ -15,5 +15,6 @@
+ #include <linux/stddef.h>
+ #include <linux/module.h>
++#include <linux/slab.h>
+ 
+ #ifdef CONFIG_M68K
+ #include <asm/setup.h>
+@@ -28,9 +29,33 @@
+  */
+ 
+ static bool logos_freed;
++#ifdef CONFIG_LOGO_LINUX_CLUT224
++static struct linux_logo late_logo;
++static bool late_logo_ready;
++#endif
+ 
+ static int __init fb_logo_late_init(void)
+ {
++#ifdef CONFIG_LOGO_LINUX_CLUT224
++	/* USB-C DP negotiation can finish after init memory is released. */
++	if (!nologo) {
++		const struct linux_logo *src = &logo_linux_clut224;
++		unsigned char *data = kmemdup(src->data,
++					     src->width * src->height, GFP_KERNEL);
++		unsigned char *clut = kmemdup(src->clut,
++					     src->clutsize * 3, GFP_KERNEL);
++
++		if (data && clut) {
++			late_logo = *src;
++			late_logo.data = data;
++			late_logo.clut = clut;
++			late_logo_ready = true;
++		} else {
++			kfree(data);
++			kfree(clut);
++		}
++	}
++#endif
+ 	logos_freed = true;
+ 	return 0;
+ }
+@@ -45,7 +70,14 @@ const struct linux_logo * __ref fb_find_logo(int depth)
+ {
+ 	const struct linux_logo *logo = NULL;
+ 
+-	if (nologo || logos_freed)
++	if (nologo)
++		return NULL;
++	if (logos_freed) {
++#ifdef CONFIG_LOGO_LINUX_CLUT224
++		if (depth >= 8 && late_logo_ready)
++			return &late_logo;
++#endif
+ 		return NULL;
++	}
+ 
+ 	if (depth >= 1) {

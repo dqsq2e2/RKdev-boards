@@ -1,0 +1,21 @@
+--- a/drivers/thermal/gov_bang_bang.c
++++ b/drivers/thermal/gov_bang_bang.c
+@@ -37,14 +37,9 @@
+ static void bang_bang_set_instance_target(struct thermal_instance *instance,
+-					  unsigned int target)
++					  bool active)
+ {
+-	if (instance->target != 0 && instance->target != 1 &&
+-	    instance->target != THERMAL_NO_TARGET)
+-		pr_debug("Unexpected state %ld of thermal instance %s in bang-bang\n",
+-			 instance->target, instance->name);
+-
+ 	/*
+-	 * Enable the fan when the trip is crossed on the way up and disable it
+-	 * when the trip is crossed on the way down.
++	 * Apply the trip's cooling limits so multiple hysteretic trips can
++	 * select distinct fan speeds instead of always selecting state one.
+ 	 */
+-	instance->target = target;
++	instance->target = active ? instance->upper : instance->lower;
+ 	instance->initialized = true;

@@ -1,0 +1,9 @@
+phy_rockchip_usbdp
+phy_rockchip_naneng_combphy
+phy_rockchip_inno_usb2
+dwmac_rk
+realtek
+rtw88_8822cs
+br_netfilter
+uas
+usb_storage

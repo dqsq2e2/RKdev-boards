@@ -1,3 +1,3 @@
 * text=auto eol=lf
 *.patch whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab
-boards/i3588/v1/linux-overlay/drivers/video/logo/logo_linux_clut224.ppm whitespace=-blank-at-eol,-blank-at-eof
+boards/**/linux-overlay/drivers/video/logo/logo_linux_clut224.ppm whitespace=-blank-at-eol,-blank-at-eof

@@ -1,0 +1,109 @@
+{
+  "schema": 1,
+  "board_id": "aiot-3588a2",
+  "revision": "v1",
+  "name": "SMDT AIOT-3588A V2.0",
+  "soc": "rk3588",
+  "compatible": "smdt,aiot-3588a2",
+  "default_profile": "emmc",
+  "firmware": {
+    "ddr": {
+      "file": "rk3588_ddr_lp4_1800MHz_lp5_2400MHz_v1.21.bin",
+      "sha256": "7efc787061937d81f58b5740b3aa4b15e650e4cf26b2fd0a97696e7e2ac4309f"
+    },
+    "bl31": {
+      "url": "https://raw.githubusercontent.com/rockchip-linux/rkbin/4864ee05356b46444518e62f7214cadbc5e7ee03/bin/rk35/rk3588_bl31_v1.54.elf",
+      "sha256": "4d111f0c793035dba84b65cfa741665814ae134af8243c3bb8a87d55a0937bc3"
+    }
+  },
+  "profiles": {
+    "emmc": {
+      "uboot": {
+        "config": "uboot.config",
+        "dts": "boot/rk3588-aiot-3588a2.dts",
+        "overlay": "uboot-overlay"
+      },
+      "linux": {
+        "config": "linux.config",
+        "dts": "rk3588-aiot-3588a2.dts",
+        "overlay": "linux-overlay",
+        "patches": [
+          "linux-brcmfmac.patch"
+        ]
+      },
+      "boot_fallback": "loader",
+      "device": "/dev/mmcblk0",
+      "capacity": 536870912,
+      "loader": {
+        "offset": 32768,
+        "length": 16744448,
+        "format": "rockchip-sd"
+      },
+      "environment": {
+        "offsets": [
+          16777216,
+          16908288
+        ],
+        "size": 131072
+      },
+      "recovery": {
+        "offset": 33554432,
+        "length": 234863616,
+        "label": "AIOT_RECOVERY",
+        "partition": 1
+      },
+      "system": {
+        "offset": 268435456,
+        "label": "AIOT_SYSTEM"
+      },
+      "boot_order": [
+        "usb",
+        "nvme",
+        "sata",
+        "sd",
+        "emmc"
+      ],
+      "recovery_args": "console=ttyS1,1500000n8 consoleblank=0 earlycon=uart8250,mmio32,0xfeb40000 loglevel=5 cma=128M",
+      "key": {
+        "type": "adc",
+        "channel": 1,
+        "minimum": 341,
+        "maximum": 569,
+        "samples": 5,
+        "delay_ms": 20,
+        "action": "host-or-recovery",
+        "usb_node": "/usb@fc000000",
+        "wait_ms": 2500
+      },
+      "firmware": {
+        "brcm/brcmfmac43456-sdio.bin": {
+          "file": "brcmfmac43456-sdio.bin",
+          "sha256": "06d3bebe4b193b5db97b7f99bde94e2e85ca95dc35677079ecf86f8f9b0eb734"
+        },
+        "brcm/brcmfmac43456-sdio.txt": {
+          "file": "brcmfmac43456-sdio.txt",
+          "sha256": "1a4430f41936bb5f0c058de5258f63bd1cb08c25ebcaa705724b8113923a17b4"
+        },
+        "arm/mali/arch10.8/mali_csffw.bin": {
+          "file": "mali_csffw.bin",
+          "sha256": "c1f0896b9e2f0d4154406acd650f6c946fdd80cfc32381fb5072e9952933367a"
+        }
+      }
+    }
+  },
+  "rootfs_overlay": "rootfs",
+  "rootfs_packages": [
+    "dnsmasq",
+    "hostapd",
+    "iproute2",
+    "iw",
+    "openssh-server",
+    "openssh-sftp-server",
+    "wireless-regdb",
+    "iptables-legacy",
+    "wpa_supplicant"
+  ],
+  "rootfs_programs": {
+    "usr/sbin/aiot3588a2-mcu-watchdog": "mcu-watchdog.c"
+  }
+}

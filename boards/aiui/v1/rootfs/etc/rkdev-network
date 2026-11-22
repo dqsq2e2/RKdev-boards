@@ -1,0 +1,24 @@
+#!/bin/sh
+export PATH=/usr/sbin:/usr/bin:/sbin:/bin
+mkdir -p /run/dnsmasq
+if [ -d /sys/class/net/eth0 ]; then
+    ip link set eth0 up
+    udhcpc -b -i eth0 -p /run/udhcpc-wan.pid >/tmp/udhcpc-wan.log 2>&1 &
+fi
+for attempt in $(seq 1 30); do
+    [ -d /sys/class/net/wlan0 ] && break
+    sleep 1
+done
+if [ -d /sys/class/net/wlan0 ]; then
+    ip addr add 192.168.88.1/24 dev wlan0
+    ip link set wlan0 up
+    hostapd -B -P /run/hostapd.pid /etc/aiui-hostapd.conf >/tmp/hostapd.log 2>&1
+    dnsmasq --conf-file=/etc/aiui-dnsmasq.conf --pid-file=/run/dnsmasq/dnsmasq.pid \
+        --dhcp-leasefile=/run/dnsmasq/leases >/tmp/dnsmasq.log 2>&1
+    if [ -d /sys/class/net/eth0 ]; then
+        echo 1 >/proc/sys/net/ipv4/ip_forward
+        nft -f /etc/aiui-nat.nft >/tmp/nat.log 2>&1
+    fi
+fi
+sleep 12
+/bin/sh /usr/share/aiui/issue refresh

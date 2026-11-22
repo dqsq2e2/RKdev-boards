@@ -1,0 +1,104 @@
+{
+  "schema": 1,
+  "board_id": "aiui",
+  "revision": "v1",
+  "name": "LUNZN RK3588 AIUI",
+  "soc": "rk3588",
+  "compatible": "lunzn,aiui",
+  "default_profile": "emmc",
+  "firmware": {
+    "ddr": {
+      "url": "https://raw.githubusercontent.com/rockchip-linux/rkbin/f973f5335bcce3a0459c540e828874303505a5bf/bin/rk35/rk3588_ddr_lp4_2112MHz_lp5_2400MHz_v1.19.bin",
+      "sha256": "e109f3e283c86ad74b6574f5538b11750dea4cab7668175717aa2af7994c28ef"
+    },
+    "bl31": {
+      "url": "https://raw.githubusercontent.com/rockchip-linux/rkbin/8126eaeac3110595cf21576e6028362ea09cc7c3/bin/rk35/rk3588_bl31_v1.51.elf",
+      "sha256": "2847c82a44aff28f1923eea31567c9cf01a7c4bcec4d3b9be1cbf6fcc965f84b"
+    }
+  },
+  "profiles": {
+    "emmc": {
+      "uboot": {
+        "config": "uboot.config",
+        "dts": "boot/rk3588-lunzn-AIUI.dts",
+        "overlay": "uboot-overlay"
+      },
+      "linux": {
+        "config": "linux.config",
+        "dts": "rk3588-AIUI.dts",
+        "overlay": "linux-overlay",
+        "patches": [
+          "patches/dw-dp-reprobe-uninitialized-link.patch",
+          "patches/rockchip-drm-nonzero-iova.patch",
+          "patches/rockchip-gem-min-iova.patch",
+          "patches/fb-logo-late-display.patch",
+          "patches/thermal-bang-bang-cooling-limits.patch"
+        ]
+      },
+      "boot_fallback": "console",
+      "device": "/dev/mmcblk0",
+      "capacity": 536870912,
+      "loader": {
+        "offset": 32768,
+        "length": 16744448,
+        "format": "rockchip-sd"
+      },
+      "environment": {
+        "offsets": [
+          16777216,
+          16908288
+        ],
+        "size": 131072
+      },
+      "recovery": {
+        "offset": 33554432,
+        "length": 234863616,
+        "label": "LUNZN_RECOVERY",
+        "partition": 1
+      },
+      "system": {
+        "offset": 268435456,
+        "label": "LUNZN_SYSTEM"
+      },
+      "boot_order": [
+        "usb",
+        "nvme",
+        "sd",
+        "emmc"
+      ],
+      "recovery_args": "console=ttyS2,1500000n8 consoleblank=0 earlycon=uart8250,mmio32,0xfeb50000 loglevel=5 cma=128M",
+      "key": {
+        "type": "adc",
+        "channel": 1,
+        "minimum": 0,
+        "maximum": 128,
+        "samples": 5,
+        "delay_ms": 20,
+        "action": "host-or-recovery",
+        "usb_node": "/usb@fc000000",
+        "wait_ms": 2500
+      },
+      "firmware": {
+        "rtw88/rtw8822c_fw.bin": {
+          "url": "https://gitlab.com/kernel-firmware/linux-firmware/-/raw/a1ebb5ad7eae3caca60b8b3db5792cf43339ba58/rtw88/rtw8822c_fw.bin",
+          "sha256": "3deecb31210986d98cdbfb000391e08d602a6eee4ffc883969faa2b907ab03ba"
+        },
+        "rtw88/rtw8822c_wow_fw.bin": {
+          "url": "https://gitlab.com/kernel-firmware/linux-firmware/-/raw/a1ebb5ad7eae3caca60b8b3db5792cf43339ba58/rtw88/rtw8822c_wow_fw.bin",
+          "sha256": "6717fc6ff426a74571ac4f04cd9698fb2f356012c05c58aa64cf21ceb6b958a2"
+        }
+      }
+    }
+  },
+  "rootfs_overlay": "rootfs",
+  "rootfs_packages": [
+    "dnsmasq",
+    "hostapd",
+    "iproute2",
+    "iw",
+    "openssh-server",
+    "openssh-sftp-server",
+    "wireless-regdb",
+    "nftables"
+  ]
+}

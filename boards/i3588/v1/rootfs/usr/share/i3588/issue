@@ -8,7 +8,7 @@ i3588_issue() {
         printf '9Tripod I3588 Recovery\n\n'
         printf 'LAN / Wi-Fi: http://192.168.88.1/\n'
         if [ -n "$wan_ip" ]; then printf 'WAN: http://%s/\n' "$wan_ip"; else printf 'WAN: waiting for DHCP\n'; fi
-        printf 'Wi-Fi: I3588-Recovery    Password: I3588recovery\n'
+        printf 'Wi-Fi: I3588-Recovery (open)\n'
         printf 'SSH / serial login: root / root\n\n'
     } >/run/i3588-issue.new
     if [ "${1:-}" = refresh ] && cmp -s /run/i3588-issue.new /run/i3588-issue.content; then return 0; fi
