@@ -1,12 +1,11 @@
-name: RKdev board builds
+name: 按板型构建并发布
+run-name: 构建 ${{ inputs.board }} · ${{ inputs.profile }}
 
 on:
-  push:
-  pull_request:
   workflow_dispatch:
     inputs:
       board:
-        description: Board package to build
+        description: 要构建的板型
         type: choice
         required: true
         options:
@@ -16,51 +15,32 @@ on:
           - aiui
           - aiot-3588a2
       profile:
-        description: Storage profile
+        description: 启动介质（default 使用板包默认值）
         type: choice
+        required: true
         default: default
         options:
           - default
           - spi
           - emmc
       version:
-        description: Image version (empty uses the workflow run number)
+        description: 镜像版本（留空自动生成）
         type: string
       firmware_bundle_url:
-        description: Optional public HTTPS firmware ZIP (use the secret for private URLs)
+        description: 外部固件 ZIP 的 HTTPS 地址（可选）
         type: string
 
 permissions:
   contents: read
 
-env:
-  RKDEV_REF: 898a514cf5b22495dba31de7a936dd5efc1f1f67
-
 jobs:
-  lint:
-    runs-on: ubuntu-24.04
-    strategy:
-      matrix:
-        board: [bdy-g98, phx-r3588, i3588, aiui, aiot-3588a2]
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/checkout@v4
-        with:
-          repository: dqsq2e2/RKdev
-          ref: ${{ env.RKDEV_REF }}
-          path: .rkdev
-          persist-credentials: false
-      - env:
-          RKDEV_BOARD: ${{ matrix.board }}
-        run: python3 .rkdev/tools/rkdev.py lint --board "boards/$RKDEV_BOARD/v1"
-
   build:
-    if: github.event_name == 'workflow_dispatch'
-    needs: lint
+    name: 构建 ${{ inputs.board }}
     runs-on: ubuntu-24.04-arm
     timeout-minutes: 80
     env:
       RKDEV_BOARD: ${{ inputs.board }}
+      RKDEV_PROFILE_INPUT: ${{ inputs.profile }}
     outputs:
       profile: ${{ steps.firmware.outputs.profile }}
       version: ${{ steps.image.outputs.version }}
@@ -68,20 +48,22 @@ jobs:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
-      - uses: actions/checkout@v4
-        with:
-          repository: dqsq2e2/RKdev
-          ref: ${{ env.RKDEV_REF }}
-          path: .rkdev
-          persist-credentials: false
+      - uses: ./.github/actions/checkout-rkdev
+      - name: Lint selected board package
+        shell: bash
+        run: |
+          args=(lint --board "boards/$RKDEV_BOARD/v1")
+          if [[ "$RKDEV_PROFILE_INPUT" != default ]]; then
+            args+=(--profile "$RKDEV_PROFILE_INPUT")
+          fi
+          python3 .rkdev/tools/rkdev.py "${args[@]}"
       - name: Resolve profile and verify board firmware
         id: firmware
         env:
-          RKDEV_PROFILE: ${{ inputs.profile }}
           RKDEV_FIRMWARE_BUNDLE_URL: ${{ inputs.firmware_bundle_url || secrets.RKDEV_FIRMWARE_BUNDLE_URL }}
         run: |
           profile=$(python3 ci/firmware_bundle.py --rkdev .rkdev --board "boards/$RKDEV_BOARD/v1" \
-            --profile "$RKDEV_PROFILE" --out "$RUNNER_TEMP/firmware")
+            --profile "$RKDEV_PROFILE_INPUT" --out "$RUNNER_TEMP/firmware")
           echo "profile=$profile" >> "$GITHUB_OUTPUT"
       - uses: actions/setup-go@v5
         with:
@@ -141,7 +123,8 @@ jobs:
           if-no-files-found: ignore
 
   release:
-    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
+    name: 发布 ${{ inputs.board }}
+    if: github.ref == 'refs/heads/main'
     needs: build
     runs-on: ubuntu-24.04
     permissions:

@@ -1,0 +1,12 @@
+name: Checkout RKdev
+description: Check out the RKdev revision used for lint and firmware builds
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/checkout@v4
+      with:
+        repository: dqsq2e2/RKdev
+        ref: 898a514cf5b22495dba31de7a936dd5efc1f1f67
+        path: .rkdev
+        persist-credentials: false

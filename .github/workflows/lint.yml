@@ -1,0 +1,24 @@
+name: 检查全部板包
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        board: [bdy-g98, phx-r3588, i3588, aiui, aiot-3588a2]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/checkout-rkdev
+      - env:
+          RKDEV_BOARD: ${{ matrix.board }}
+        run: python3 .rkdev/tools/rkdev.py lint --board "boards/$RKDEV_BOARD/v1"

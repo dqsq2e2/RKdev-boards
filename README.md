@@ -16,6 +16,6 @@ RKdev 的 Rockchip 板包和固件发布仓库。每个板包定义对应主板�
 
 ## 构建与适配
 
-在 **Actions → RKdev board builds → Run workflow** 选择板型；介质选 `default` 即采用板包默认值。从 `main` 构建成功后，固件按板型和介质发布到 Releases。
+在 [Actions → 按板型构建并发布](https://github.com/dqsq2e2/RKdev-boards/actions/workflows/ci.yml) 点击 **Run workflow**，选择板型和介质。从 `main` 构建成功后，镜像会发布到 Releases。
 
 本地构建及外部固件输入见[构建指南](docs/build.md)。适配新板可在 `boards/<板型>/<修订>/` 或独立仓库中实现 [RKdev 板包接口](https://github.com/dqsq2e2/RKdev/blob/main/docs/board-package.md)。
