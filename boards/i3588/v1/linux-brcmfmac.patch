@@ -1,0 +1,43 @@
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c
+index 169e62b9d..c27d7181a 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c
+@@ -1298,8 +1298,6 @@ static int brcmf_bus_started(struct brcmf_pub *drvr, struct cfg80211_ops *ops)
+ #endif
+ #endif /* CONFIG_INET */
+ 
+-	INIT_WORK(&drvr->bus_reset, brcmf_core_bus_reset);
+-
+ 	/* populate debugfs */
+ 	brcmf_debugfs_add_entry(drvr, "revinfo", brcmf_revinfo_read);
+ 	debugfs_create_file("reset", 0600, brcmf_debugfs_get_devdir(drvr), drvr,
+@@ -1352,6 +1350,8 @@ int brcmf_alloc(struct device *dev, struct brcmf_mp_device *settings)
+ 	drvr->bus_if = dev_get_drvdata(dev);
+ 	drvr->bus_if->drvr = drvr;
+ 	drvr->settings = settings;
++	/* Probe failure can remove the bus before brcmf_bus_started() runs. */
++	INIT_WORK(&drvr->bus_reset, brcmf_core_bus_reset);
+ 
+ 	return 0;
+ }
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c
+index 192ef8533..224498f28 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c
+@@ -2474,6 +2474,16 @@ brcmf_pcie_probe(struct pci_dev *pdev, const struct pci_device_id *id)
+ 		devinfo->ci = NULL;
+ 		goto fail;
+ 	}
++	/* A stale or invalid bank description must not escape the TCM BAR. */
++	if (devinfo->ci->ramsize < 4 ||
++	    devinfo->ci->rambase > pci_resource_len(pdev, 2) ||
++	    devinfo->ci->ramsize >
++		pci_resource_len(pdev, 2) - devinfo->ci->rambase) {
++		dev_err(&pdev->dev, "RAM range %#x+%#x exceeds TCM BAR\n",
++			devinfo->ci->rambase, devinfo->ci->ramsize);
++		ret = -EINVAL;
++		goto fail;
++	}
+ 
+ 	core = brcmf_chip_get_core(devinfo->ci, BCMA_CORE_PCIE2);
+ 	if (core->rev >= 64)

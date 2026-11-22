@@ -1,0 +1,110 @@
+{
+  "schema": 1,
+  "board_id": "phx-r3588",
+  "revision": "v1",
+  "name": "PHX-R3588",
+  "soc": "rk3588",
+  "compatible": "phx,phx-r3588",
+  "default_profile": "emmc",
+  "firmware": {
+    "ddr": {
+      "url": "https://raw.githubusercontent.com/rockchip-linux/rkbin/f973f5335bcce3a0459c540e828874303505a5bf/bin/rk35/rk3588_ddr_lp4_2112MHz_lp5_2400MHz_v1.19.bin",
+      "sha256": "e109f3e283c86ad74b6574f5538b11750dea4cab7668175717aa2af7994c28ef"
+    },
+    "bl31": {
+      "url": "https://raw.githubusercontent.com/rockchip-linux/rkbin/8126eaeac3110595cf21576e6028362ea09cc7c3/bin/rk35/rk3588_bl31_v1.51.elf",
+      "sha256": "2847c82a44aff28f1923eea31567c9cf01a7c4bcec4d3b9be1cbf6fcc965f84b"
+    }
+  },
+  "profiles": {
+    "emmc": {
+      "uboot": {
+        "config": "uboot.config",
+        "dts": "boot/rk3588-phx-r3588.dts",
+        "overlay": "uboot-overlay"
+      },
+      "linux": {
+        "config": "linux.config",
+        "dts": "rk3588-phx-r3588.dts",
+        "patches": [
+          "linux-brcmfmac.patch"
+        ]
+      },
+      "boot_fallback": "loader",
+      "device": "/dev/mmcblk0",
+      "capacity": 536870912,
+      "loader": {
+        "offset": 32768,
+        "length": 16744448,
+        "format": "rockchip-sd"
+      },
+      "environment": {
+        "offsets": [
+          16777216,
+          16908288
+        ],
+        "size": 131072
+      },
+      "recovery": {
+        "offset": 33554432,
+        "length": 234863616,
+        "label": "PHX_RECOVERY",
+        "partition": 1
+      },
+      "system": {
+        "offset": 268435456,
+        "label": "PHX_SYSTEM"
+      },
+      "boot_order": [
+        "usb",
+        "nvme",
+        "sata",
+        "sd",
+        "emmc"
+      ],
+      "recovery_args": "console=ttyS2,115200n8 consoleblank=0 earlycon=uart8250,mmio32,0xfeb50000 loglevel=5 cma=128M",
+      "key": {
+        "type": "adc",
+        "channel": 1,
+        "minimum": 0,
+        "maximum": 128,
+        "samples": 5,
+        "delay_ms": 20,
+        "action": "host-or-recovery",
+        "usb_node": "/usb@fc000000",
+        "wait_ms": 2500
+      },
+      "firmware": {
+        "arm/mali/arch10.8/mali_csffw.bin": {
+          "file": "mali_csffw.bin",
+          "sha256": "c1f0896b9e2f0d4154406acd650f6c946fdd80cfc32381fb5072e9952933367a"
+        },
+        "brcm/BCM4362A2.hcd": {
+          "file": "BCM4362A2.hcd",
+          "sha256": "18901a5bef1d418b6895e92d0afae36234f4160b237465dfca3d75e9844e93ef"
+        },
+        "brcm/brcmfmac43752-pcie.bin": {
+          "file": "brcmfmac43752-pcie.bin",
+          "sha256": "bfcdc3ecb5274745f3c3551abd0d9b11ede89b305837241364a055fefbf09de7"
+        },
+        "brcm/brcmfmac43752-pcie.clm_blob": {
+          "file": "brcmfmac43752-pcie.clm_blob",
+          "sha256": "5143146e1923f87f7aab8df043abcf89a657fa9fdc3b22a38806399730d9a97a"
+        },
+        "brcm/brcmfmac43752-pcie.txt": {
+          "file": "brcmfmac43752-pcie.txt",
+          "sha256": "9179ab100182d1f572916e6c90bfc2a3dbc509951d36c6546c3807e4a45890c4"
+        },
+        "regulatory.db": {
+          "file": "regulatory.db",
+          "sha256": "31b14900eb290e982f52745deaec9b06dcaabb9293baf017c5118bfbef7d0a77"
+        },
+        "regulatory.db.p7s": {
+          "file": "regulatory.db.p7s",
+          "sha256": "c142d2782f9ef6962888e92820d290287f0be179b3f388b1d72b541691d39fc2"
+        }
+      }
+    }
+  },
+  "rootfs_overlay": "rootfs"
+}

@@ -1,0 +1,23 @@
+name: Board package checks
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        board: [bdy-g98, phx-r3588, i3588]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: dqsq2e2/RKdev
+          ref: e17772c6410249648d2508294e0595591c277218
+          path: .rkdev
+      - run: python3 .rkdev/tools/rkdev.py lint --board "boards/${{ matrix.board }}/v1"

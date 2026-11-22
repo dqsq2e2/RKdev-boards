@@ -1,0 +1,6 @@
+out/
+.build/
+*.img
+*.bin
+*.elf
+*.dtb

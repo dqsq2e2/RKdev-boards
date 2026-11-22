@@ -1,0 +1,8 @@
+r8169
+dwmac-rk
+phy-rockchip-usbdp
+gpio-fan
+rockchip_canfd
+brcmfmac
+hci_uart
+btbcm

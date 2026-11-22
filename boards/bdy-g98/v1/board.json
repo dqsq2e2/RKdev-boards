@@ -1,0 +1,75 @@
+{
+  "schema": 1,
+  "board_id": "bdy-g98",
+  "revision": "v1",
+  "name": "BDY-G98",
+  "soc": "rk3588",
+  "compatible": "bdy,bdy-g98",
+  "default_profile": "spi",
+  "firmware": {
+    "ddr": {
+      "file": "rk3588_ddr_lp4_1800MHz_lp5_2400MHz_v1.21.bin",
+      "sha256": "7efc787061937d81f58b5740b3aa4b15e650e4cf26b2fd0a97696e7e2ac4309f"
+    },
+    "bl31": {
+      "url": "https://raw.githubusercontent.com/rockchip-linux/rkbin/4864ee05356b46444518e62f7214cadbc5e7ee03/bin/rk35/rk3588_bl31_v1.54.elf",
+      "sha256": "4d111f0c793035dba84b65cfa741665814ae134af8243c3bb8a87d55a0937bc3"
+    }
+  },
+  "profiles": {
+    "spi": {
+      "uboot": {
+        "config": "uboot.config",
+        "dts": "boot/rk3588-bdy-g98.dts"
+      },
+      "linux": {
+        "config": "linux.config",
+        "dts": "rk3588-bdy-g98-only-spi.dts",
+        "patches": [
+          "linux-net.patch"
+        ]
+      },
+      "boot_fallback": "maskrom",
+      "device": "/dev/mtdblock0",
+      "capacity": 33554432,
+      "erase_size": 32768,
+      "mtd_name": "spi5.0",
+      "loader": {
+        "offset": 32768,
+        "length": 4128768,
+        "format": "rockchip-spi"
+      },
+      "environment": {
+        "offsets": [
+          4161536
+        ],
+        "size": 8192
+      },
+      "recovery": {
+        "offset": 4194304,
+        "length": 29360128,
+        "label": "RKDEV_RECOVERY",
+        "load_address": 1073741824
+      },
+      "boot_order": [
+        "usb",
+        "nvme",
+        "sata"
+      ],
+      "key": {
+        "type": "button",
+        "label": "Recovery key",
+        "action": "recovery"
+      },
+      "rkfw": {
+        "kernel": 5,
+        "initrd": 6,
+        "resource": 4,
+        "root": 8,
+        "args": "rootfstype=ext4 rootwait rw console=ttyS2,1500000n8 earlycon=uart8250,mmio32,0xfeb50000"
+      },
+      "recovery_args": "console=ttyS2,1500000n8 earlycon=uart8250,mmio32,0xfeb50000 rootwait",
+      "release_url": "https://github.com/dqsq2e2/RKdev-boards/releases/latest/download/bdy-g98-v1-spi-release.json"
+    }
+  }
+}
