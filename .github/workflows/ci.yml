@@ -110,9 +110,18 @@ jobs:
             --board "$board" --profile "$RKDEV_PROFILE" --version "$version" --cross-compile= \
             --firmware-dir "$RUNNER_TEMP/firmware" --jobs "$(nproc)" --out out \
             2>&1 | tee out/build.log
-          image="out/$RKDEV_BOARD-v1-$RKDEV_PROFILE-$version.img"
-          python3 .rkdev/tools/rkdev.py verify --board "$board" --profile "$RKDEV_PROFILE" --image "$image"
-          (cd out && sha256sum u-boot-rockchip*.bin >> SHA256SUMS && sha256sum --check SHA256SUMS)
+          image="$RKDEV_BOARD-v1-$RKDEV_PROFILE-$version"
+          python3 .rkdev/tools/rkdev.py verify --board "$board" --profile "$RKDEV_PROFILE" --image "out/$image.img"
+          (
+            cd out
+            # The build ran under sudo; replace its checksum file from the runner-owned directory.
+            {
+              cat SHA256SUMS
+              sha256sum "$image.json" u-boot-rockchip*.bin
+            } > SHA256SUMS.release
+            sha256sum --check SHA256SUMS.release
+            mv -f -- SHA256SUMS.release SHA256SUMS
+          )
           echo "version=$version" >> "$GITHUB_OUTPUT"
       - uses: actions/upload-artifact@v4
         with:
