@@ -127,9 +127,15 @@ jobs:
     if: github.ref == 'refs/heads/main'
     needs: build
     runs-on: ubuntu-24.04
+    concurrency:
+      group: rkdev-release-${{ inputs.board }}
+      cancel-in-progress: false
     permissions:
       contents: write
     steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - uses: actions/download-artifact@v4
         with:
           name: rkdev-${{ inputs.board }}-${{ needs.build.outputs.profile }}
@@ -142,12 +148,4 @@ jobs:
           RKDEV_PROFILE: ${{ needs.build.outputs.profile }}
           RKDEV_VERSION: ${{ needs.build.outputs.version }}
         working-directory: release
-        shell: bash
-        run: |
-          sha256sum --check SHA256SUMS
-          tag="$RKDEV_BOARD-$RKDEV_PROFILE-v$RKDEV_VERSION"
-          image="$RKDEV_BOARD-v1-$RKDEV_PROFILE-$RKDEV_VERSION"
-          gh release create "$tag" --target "$GITHUB_SHA" --latest=false \
-            --title "$RKDEV_BOARD · $RKDEV_PROFILE · $RKDEV_VERSION" \
-            --notes '完整启动镜像，包含主线 U-Boot 和 RKdev 恢复系统。' \
-            "$image.img" "$image.json" SHA256SUMS u-boot-rockchip*.bin
+        run: python3 ../ci/publish_release.py
