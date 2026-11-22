@@ -34,7 +34,7 @@ permissions:
   contents: read
 
 env:
-  RKDEV_REF: 09c63e57bdae0101d7737bef255a0ec1a808be2c
+  RKDEV_REF: 898a514cf5b22495dba31de7a936dd5efc1f1f67
 
 jobs:
   lint:
@@ -61,6 +61,9 @@ jobs:
     timeout-minutes: 80
     env:
       RKDEV_BOARD: ${{ inputs.board }}
+    outputs:
+      profile: ${{ steps.firmware.outputs.profile }}
+      version: ${{ steps.image.outputs.version }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -93,12 +96,14 @@ jobs:
             device-tree-compiler python3-dev python3-pyelftools python3-setuptools swig \
             u-boot-tools gdisk util-linux e2fsprogs cpio pigz xz-utils lz4 kmod zstd rsync
       - name: Build U-Boot and recovery image
+        id: image
         env:
           RKDEV_PROFILE: ${{ steps.firmware.outputs.profile }}
           RKDEV_VERSION: ${{ inputs.version }}
         shell: bash
         run: |
           version=${RKDEV_VERSION:-0.1-ci.$GITHUB_RUN_NUMBER}
+          git check-ref-format "refs/tags/$RKDEV_BOARD-$RKDEV_PROFILE-v$version"
           board="boards/$RKDEV_BOARD/v1"
           mkdir -p out
           sudo env "PATH=$PATH" python3 -u .rkdev/tools/rkdev.py build --locked \
@@ -108,6 +113,7 @@ jobs:
           image="out/$RKDEV_BOARD-v1-$RKDEV_PROFILE-$version.img"
           python3 .rkdev/tools/rkdev.py verify --board "$board" --profile "$RKDEV_PROFILE" --image "$image"
           (cd out && sha256sum u-boot-rockchip*.bin >> SHA256SUMS && sha256sum --check SHA256SUMS)
+          echo "version=$version" >> "$GITHUB_OUTPUT"
       - uses: actions/upload-artifact@v4
         with:
           name: rkdev-${{ inputs.board }}-${{ steps.firmware.outputs.profile }}
@@ -124,3 +130,32 @@ jobs:
           name: rkdev-${{ inputs.board }}-failed-build-log
           path: out/build.log
           if-no-files-found: ignore
+
+  release:
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: rkdev-${{ inputs.board }}-${{ needs.build.outputs.profile }}
+          path: release
+      - name: Publish board firmware
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RKDEV_BOARD: ${{ inputs.board }}
+          RKDEV_PROFILE: ${{ needs.build.outputs.profile }}
+          RKDEV_VERSION: ${{ needs.build.outputs.version }}
+        working-directory: release
+        shell: bash
+        run: |
+          sha256sum --check SHA256SUMS
+          tag="$RKDEV_BOARD-$RKDEV_PROFILE-v$RKDEV_VERSION"
+          image="$RKDEV_BOARD-v1-$RKDEV_PROFILE-$RKDEV_VERSION"
+          gh release create "$tag" --target "$GITHUB_SHA" --latest=false \
+            --title "$RKDEV_BOARD · $RKDEV_PROFILE · $RKDEV_VERSION" \
+            --notes '完整启动镜像，包含主线 U-Boot 和 RKdev 恢复系统。' \
+            "$image.img" "$image.json" SHA256SUMS u-boot-rockchip*.bin
