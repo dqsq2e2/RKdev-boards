@@ -25,7 +25,8 @@
       },
       "linux": {
         "config": "linux.config",
-        "dts": "rk3588-bearkey-bq3588c.dts"
+        "dts": "rk3588-bearkey-bq3588c.dts",
+        "patches": ["patches/0001-pcie-train-bq3588c-before-dbi.patch"]
       },
       "boot_fallback": "loader",
       "device": "/dev/mmcblk0",
@@ -35,7 +36,7 @@
       "recovery": { "offset": 33554432, "length": 234863616, "label": "BQ3588C_RECOVERY", "partition": 1 },
       "system": { "offset": 268435456, "label": "BQ3588C_SYSTEM" },
       "boot_order": ["usb", "sd", "nvme", "sata", "emmc"],
-      "recovery_args": "console=ttyS2,1500000n8 consoleblank=0 earlycon=uart8250,mmio32,0xfeb50000 loglevel=5 cma=128M",
+      "recovery_args": "console=ttyS2,1500000n8 consoleblank=0 earlycon=uart8250,mmio32,0xfeb50000 loglevel=5 cma=128M video=HDMI-A-1:1280x720@60",
       "firmware": {
         "brcm/brcmfmac43752-sdio.bin": {
           "url": "https://raw.githubusercontent.com/armbian/firmware/db8cc456dad5ad511b04f8a5130acda392cad20b/brcm/brcmfmac43752-sdio.bin",
@@ -46,8 +47,8 @@
           "sha256": "5143146e1923f87f7aab8df043abcf89a657fa9fdc3b22a38806399730d9a97a"
         },
         "brcm/brcmfmac43752-sdio.txt": {
-          "url": "https://raw.githubusercontent.com/armbian/firmware/db8cc456dad5ad511b04f8a5130acda392cad20b/brcm/nvram_ap6275s.txt",
-          "sha256": "b5f24335121c042aad82bedc4300d0b65d250f978c675c43afea81d028aad5ad"
+          "url": "https://raw.githubusercontent.com/armbian/firmware/db8cc456dad5ad511b04f8a5130acda392cad20b/brcm/brcmfmac43752-sdio.txt",
+          "sha256": "2d2723101fe9c66c853ddb1e2d715851ba100a4390f8ac72fc84dd35736cc66f"
         }
       }
     }
