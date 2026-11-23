@@ -26,3 +26,20 @@
 	phys = <&combphy0_ps PHY_TYPE_SATA>;
 	phy-names = "sata-phy";
 };
+
+&vop {
+	u-boot,hdmi = <&hdmi1>;
+	status = "okay";
+};
+
+&hdmi1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&hdmim2_tx1_cec &hdmim0_tx1_hpd
+		     &hdmim1_tx1_scl &hdmim1_tx1_sda>;
+	enable-gpios = <&gpio4 RK_PA0 GPIO_ACTIVE_HIGH>;
+	status = "okay";
+};
+
+&hdptxphy1 {
+	status = "okay";
+};
