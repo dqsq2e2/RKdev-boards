@@ -9,6 +9,7 @@ RKdev 的 Rockchip 板包和固件发布仓库。每个板包定义对应主板�
 | 九鼎 I3588 | [`i3588`](boards/i3588/v1) | eMMC |
 | LUNZN RK3588 AIUI | [`aiui`](boards/aiui/v1) | eMMC |
 | 视美泰 AIOT-3588A V2.0 | [`aiot-3588a2`](boards/aiot-3588a2/v1) | eMMC |
+| 贝启 BQ3588C | [`bq3588c`](boards/bq3588c/v1) | eMMC |
 
 ## 下载固件
 

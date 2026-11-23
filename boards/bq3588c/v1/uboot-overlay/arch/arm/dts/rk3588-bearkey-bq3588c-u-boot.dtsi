@@ -1,0 +1,24 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+#include "rk3588-u-boot.dtsi"
+
+&sata0 {
+	phys = <&combphy0_ps PHY_TYPE_SATA>;
+	phy-names = "sata-phy";
+};
+
+&vop {
+	u-boot,hdmi = <&hdmi0>;
+	status = "okay";
+};
+
+&hdmi0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&hdmim0_tx0_cec &hdmim0_tx0_hpd
+		     &hdmim0_tx0_scl &hdmim0_tx0_sda>;
+	frl-enable-gpios = <&gpio4 RK_PB1 GPIO_ACTIVE_LOW>;
+	status = "okay";
+};
+
+&hdptxphy0 {
+	status = "okay";
+};

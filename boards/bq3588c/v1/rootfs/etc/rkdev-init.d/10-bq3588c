@@ -1,0 +1,8 @@
+#!/bin/sh
+hostname bq3588c-recovery
+mkdir -p /run/sshd /var/empty
+chmod 755 /var/empty
+syslogd -C256
+if ! (printf 'root:root\n' | busybox chpasswd && ssh-keygen -A); then
+    logger -t bq3588c 'SSH setup failed; continuing recovery startup'
+fi

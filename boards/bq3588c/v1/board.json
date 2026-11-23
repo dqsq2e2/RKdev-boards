@@ -1,0 +1,60 @@
+{
+  "schema": 1,
+  "board_id": "bq3588c",
+  "revision": "v1",
+  "name": "Bearkey BQ3588C",
+  "soc": "rk3588",
+  "compatible": "bearkey,bq3588c",
+  "default_profile": "emmc",
+  "firmware": {
+    "ddr": {
+      "url": "https://raw.githubusercontent.com/rockchip-linux/rkbin/4864ee05356b46444518e62f7214cadbc5e7ee03/bin/rk35/rk3588_ddr_lp4_2112MHz_lp5_2400MHz_v1.21.bin",
+      "sha256": "ae96f7ddbc6ffa891ab24708e71930cb2968cfa7a2a0972fdc0cacd6891e4f95"
+    },
+    "bl31": {
+      "url": "https://raw.githubusercontent.com/rockchip-linux/rkbin/4864ee05356b46444518e62f7214cadbc5e7ee03/bin/rk35/rk3588_bl31_v1.54.elf",
+      "sha256": "4d111f0c793035dba84b65cfa741665814ae134af8243c3bb8a87d55a0937bc3"
+    }
+  },
+  "profiles": {
+    "emmc": {
+      "uboot": {
+        "config": "uboot.config",
+        "dts": "boot/rk3588-bearkey-bq3588c.dts",
+        "overlay": "uboot-overlay"
+      },
+      "linux": {
+        "config": "linux.config",
+        "dts": "rk3588-bearkey-bq3588c.dts"
+      },
+      "boot_fallback": "loader",
+      "device": "/dev/mmcblk0",
+      "capacity": 536870912,
+      "loader": { "offset": 32768, "length": 16744448, "format": "rockchip-sd" },
+      "environment": { "offsets": [16777216, 16908288], "size": 131072 },
+      "recovery": { "offset": 33554432, "length": 234863616, "label": "BQ3588C_RECOVERY", "partition": 1 },
+      "system": { "offset": 268435456, "label": "BQ3588C_SYSTEM" },
+      "boot_order": ["usb", "sd", "nvme", "sata", "emmc"],
+      "recovery_args": "console=ttyS2,1500000n8 consoleblank=0 earlycon=uart8250,mmio32,0xfeb50000 loglevel=5 cma=128M",
+      "firmware": {
+        "brcm/brcmfmac43752-sdio.bin": {
+          "url": "https://raw.githubusercontent.com/armbian/firmware/db8cc456dad5ad511b04f8a5130acda392cad20b/brcm/brcmfmac43752-sdio.bin",
+          "sha256": "46f62076768e50938d0e29b306b24d4663de20b07b474c4759d5801fcbf0bdde"
+        },
+        "brcm/brcmfmac43752-sdio.clm_blob": {
+          "url": "https://raw.githubusercontent.com/armbian/firmware/db8cc456dad5ad511b04f8a5130acda392cad20b/brcm/brcmfmac43752-sdio.clm_blob",
+          "sha256": "5143146e1923f87f7aab8df043abcf89a657fa9fdc3b22a38806399730d9a97a"
+        },
+        "brcm/brcmfmac43752-sdio.txt": {
+          "url": "https://raw.githubusercontent.com/armbian/firmware/db8cc456dad5ad511b04f8a5130acda392cad20b/brcm/nvram_ap6275s.txt",
+          "sha256": "b5f24335121c042aad82bedc4300d0b65d250f978c675c43afea81d028aad5ad"
+        }
+      }
+    }
+  },
+  "rootfs_overlay": "rootfs",
+  "rootfs_packages": [
+    "dnsmasq", "hostapd", "iproute2", "iptables-legacy", "iw",
+    "openssh-server", "openssh-sftp-server", "wireless-regdb", "wpa_supplicant"
+  ]
+}

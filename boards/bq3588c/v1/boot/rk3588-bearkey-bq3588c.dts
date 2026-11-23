@@ -1,0 +1,181 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/dts-v1/;
+
+#include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/pinctrl/rockchip.h>
+#include "rk3588.dtsi"
+
+/ {
+	model = "Bearkey BQ3588C";
+	compatible = "bearkey,bq3588c", "rockchip,rk3588";
+
+	aliases {
+		ethernet0 = &gmac1;
+		mmc0 = &sdhci;
+		mmc1 = &sdmmc;
+	};
+
+	chosen {
+		stdout-path = "serial2:1500000n8";
+	};
+
+	vcc3v3_pcie: regulator-vcc3v3-pcie {
+		compatible = "regulator-fixed";
+		regulator-name = "vcc3v3_pcie30";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		gpio = <&gpio4 RK_PA2 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+		startup-delay-us = <5000>;
+	};
+
+	vcc3v3_m2: regulator-vcc3v3-m2 {
+		compatible = "regulator-fixed";
+		regulator-name = "vcc3v3_m2";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		gpio = <&gpio3 RK_PB7 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+		startup-delay-us = <5000>;
+	};
+
+	vcc5v0_host: regulator-vcc5v0-host {
+		compatible = "regulator-fixed";
+		regulator-name = "vcc5v0_host";
+		regulator-min-microvolt = <5000000>;
+		regulator-max-microvolt = <5000000>;
+		gpio = <&gpio4 RK_PA1 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+		regulator-always-on;
+		regulator-boot-on;
+	};
+
+	vcc5v0_usb3: regulator-vcc5v0-usb3 {
+		compatible = "regulator-fixed";
+		regulator-name = "vcc5v0_usb3";
+		regulator-min-microvolt = <5000000>;
+		regulator-max-microvolt = <5000000>;
+		gpio = <&gpio4 RK_PB0 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+		regulator-always-on;
+		regulator-boot-on;
+	};
+
+	vcc3v3_hub: regulator-vcc3v3-hub {
+		compatible = "regulator-fixed";
+		regulator-name = "vcc3v3_hub";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		gpio = <&gpio3 RK_PD4 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+		regulator-always-on;
+		regulator-boot-on;
+	};
+};
+
+&combphy0_ps {
+	status = "okay";
+};
+
+&gmac1 {
+	clock_in_out = "output";
+	phy-handle = <&rgmii_phy>;
+	phy-mode = "rgmii-rxid";
+	pinctrl-names = "default";
+	pinctrl-0 = <&gmac1_miim &gmac1_tx_bus2 &gmac1_rx_bus2
+		     &gmac1_rgmii_clk &gmac1_rgmii_bus>;
+	tx_delay = <0x33>;
+	status = "okay";
+};
+
+&mdio1 {
+	rgmii_phy: ethernet-phy@0 {
+		compatible = "ethernet-phy-ieee802.3-c22";
+		reg = <0>;
+		reset-gpios = <&gpio3 RK_PA6 GPIO_ACTIVE_LOW>;
+		reset-assert-us = <20000>;
+		reset-deassert-us = <100000>;
+	};
+};
+
+&pcie30phy {
+	data-lanes = <1 1 2 2>;
+	status = "okay";
+};
+
+&pcie3x2 {
+	reset-gpios = <&gpio4 RK_PA4 GPIO_ACTIVE_HIGH>;
+	vpcie3v3-supply = <&vcc3v3_m2>;
+	status = "okay";
+};
+
+&pcie3x4 {
+	num-lanes = <2>;
+	reset-gpios = <&gpio4 RK_PB6 GPIO_ACTIVE_HIGH>;
+	vpcie3v3-supply = <&vcc3v3_pcie>;
+	status = "okay";
+};
+
+&sata0 {
+	status = "okay";
+};
+
+&sdhci {
+	/delete-property/ supports-cqe;
+	bus-width = <8>;
+	mmc-hs400-1_8v;
+	mmc-hs400-enhanced-strobe;
+	no-sd;
+	no-sdio;
+	non-removable;
+	status = "okay";
+};
+
+&sdmmc {
+	bus-width = <4>;
+	cap-sd-highspeed;
+	disable-wp;
+	no-mmc;
+	no-sdio;
+	pinctrl-names = "default";
+	pinctrl-0 = <&sdmmc_bus4 &sdmmc_clk &sdmmc_cmd &sdmmc_det>;
+	status = "okay";
+};
+
+&spi2 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&spi2m2_cs0 &spi2m2_pins>;
+	status = "okay";
+
+	pmic@0 {
+		compatible = "rockchip,rk806";
+		reg = <0>;
+		spi-max-frequency = <1000000>;
+	};
+};
+
+&uart2 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&uart2m0_xfer>;
+	status = "okay";
+};
+
+&u2phy0 { status = "okay"; };
+&u2phy0_otg { status = "okay"; };
+&u2phy1 { status = "okay"; };
+&u2phy1_otg { status = "okay"; };
+&u2phy3 { status = "okay"; };
+&u2phy3_host { status = "okay"; };
+&usbdp_phy0 { status = "okay"; };
+&usbdp_phy1 { status = "okay"; };
+&usb_host1_ehci { status = "okay"; };
+
+&usb_host0_xhci {
+	dr_mode = "peripheral";
+	status = "okay";
+};
+
+&usb_host1_xhci {
+	dr_mode = "host";
+	status = "okay";
+};

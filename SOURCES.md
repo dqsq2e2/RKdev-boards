@@ -9,6 +9,7 @@
 | 9Tripod I3588 | I3588 主线快照 `a1fbbe25383824f771b4fae8c389d7f075960731` 的 DTS 与配置 | I3588 恢复快照 `7fa7bea7745c` 的 DTS 与配置 |
 | LUNZN RK3588 AIUI | AIUI 主线快照 `5c173eaeec8967fc95c55b209bccb82a7b8b9caa` | AIUI 恢复分支 `7e367137806b` 与 `10.26-pwm` 使用的 DT、恢复内核配置及 Type-C、显示和风扇补丁 |
 | SMDT AIOT-3588A V2.0 | `75b2dde207e10a9dbc1af2a73214fe033278394e` 的 DTS、配置与 USB 供电初始化 | `45f5f216dde1592988a058363b66d152a4dd6335` 的恢复 DTS、配置、开机界面、网络与 MCU 喂狗程序 |
+| Bearkey BQ3588C | 贝启底板 V0.1 原理图和原厂设备树的接线 | 同左，对应 20250120 Debian 与贝启 OpenHarmony 板级源码 |
 
 源码沿用被迁移文件的 SPDX 或源树的相应许可。Rockchip DDR/BL31、厂商无线与图形固件均从板包声明的来源另行获取；其再分发按相应固件条件处理。这个仓库只附上文件名、上游 URL（如可获取）及校验和。
 
