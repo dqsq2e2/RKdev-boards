@@ -13,7 +13,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        board: [bdy-g98, phx-r3588, i3588, aiui, aiot-3588a2]
+        board: [bdy-g98, phx-r3588, i3588, aiui, aiot-3588a2, bq3588c]
     steps:
       - uses: actions/checkout@v4
         with:
