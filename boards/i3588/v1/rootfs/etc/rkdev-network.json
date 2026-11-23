@@ -1,0 +1,16 @@
+{
+  "ports": [
+    {"id": "pcie", "label": "2.5 GbE", "device_path": "/a40c00000.pcie"},
+    {"id": "gmac", "label": "1 GbE", "device_path": "/fe1c0000.ethernet"},
+    {"id": "wifi", "label": "Wi-Fi", "device_path": "/a40800000.pcie", "wireless": true}
+  ],
+  "defaults": {
+    "wan": {"port": "pcie", "mode": "dhcp", "address": "", "gateway": "", "dns": []},
+    "lan": {"ports": ["gmac"], "address": "192.168.88.1/24", "dhcp": true, "start": "192.168.88.100", "end": "192.168.88.200", "nat": true},
+    "wifi": {"mode": "ap", "ssid": "I3588-Recovery", "band": "2.4", "channel": 6}
+  },
+  "station": true,
+  "ap_bands": ["2.4"],
+  "iptables": "iptables-legacy",
+  "store_offset": 25165824
+}

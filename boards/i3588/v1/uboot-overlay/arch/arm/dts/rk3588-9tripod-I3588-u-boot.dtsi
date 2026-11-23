@@ -11,6 +11,27 @@
 	vdd-microvolts = <1800000>;
 };
 
+&vop {
+	u-boot,hdmi = <&hdmi0 &hdmi1>;
+	status = "okay";
+};
+
+&hdmi0 {
+	status = "okay";
+};
+
+&hdmi1 {
+	status = "okay";
+};
+
+&hdptxphy0 {
+	status = "okay";
+};
+
+&hdptxphy1 {
+	status = "okay";
+};
+
 /* U-Boot's DWC AHCI driver reads the PHY from the controller node. */
 &sata0 {
 	phys = <&combphy0_ps PHY_TYPE_SATA>;
