@@ -78,6 +78,9 @@ jobs:
             libssl-dev libgnutls28-dev libelf-dev libncurses-dev pkg-config \
             device-tree-compiler python3-dev python3-pyelftools python3-setuptools swig \
             u-boot-tools gdisk util-linux e2fsprogs cpio pigz xz-utils lz4 kmod zstd rsync
+          if [[ "$RKDEV_BOARD" == bq3588c ]]; then
+            sudo apt-get install -y --no-install-recommends gcc-aarch64-linux-gnu
+          fi
       - name: Build U-Boot and recovery image
         id: image
         env:
@@ -88,9 +91,13 @@ jobs:
           version=${RKDEV_VERSION:-0.1-ci.$GITHUB_RUN_NUMBER}
           git check-ref-format "refs/tags/$RKDEV_BOARD-$RKDEV_PROFILE-v$version"
           board="boards/$RKDEV_BOARD/v1"
+          cross=
+          if [[ "$RKDEV_BOARD" == bq3588c ]]; then
+            cross=aarch64-linux-gnu-
+          fi
           mkdir -p out
           sudo env "PATH=$PATH" python3 -u .rkdev/tools/rkdev.py build --locked \
-            --board "$board" --profile "$RKDEV_PROFILE" --version "$version" --cross-compile= \
+            --board "$board" --profile "$RKDEV_PROFILE" --version "$version" --cross-compile="$cross" \
             --firmware-dir "$RUNNER_TEMP/firmware" --jobs "$(nproc)" --out out \
             2>&1 | tee out/build.log
           image="$RKDEV_BOARD-v1-$RKDEV_PROFILE-$version"
