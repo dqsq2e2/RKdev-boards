@@ -4,8 +4,8 @@
     {"id": "wifi", "label": "Wi-Fi", "device_path": "/fe2d0000.mmc", "wireless": true}
   ],
   "defaults": {
-    "wan": {"port": "", "mode": "off", "address": "", "gateway": "", "dns": []},
-    "lan": {"ports": ["gmac"], "address": "192.168.88.1/24", "dhcp": true, "start": "192.168.88.100", "end": "192.168.88.200", "nat": false},
+    "wan": {"port": "gmac", "mode": "dhcp", "address": "", "gateway": "", "dns": []},
+    "lan": {"ports": [], "address": "192.168.88.1/24", "dhcp": false, "start": "192.168.88.100", "end": "192.168.88.200", "nat": false},
     "wifi": {"mode": "off"}
   },
   "station": true,
