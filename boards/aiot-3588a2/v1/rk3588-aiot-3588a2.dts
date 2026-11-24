@@ -178,6 +178,27 @@
 			output-high;
 			line-name = "usb2-power";
 		};
+
+		modem-reset-hog {
+			gpio-hog;
+			gpios = <3 GPIO_ACTIVE_HIGH>;
+			output-low;
+			line-name = "m2-modem-reset";
+		};
+
+		modem-disable-hog {
+			gpio-hog;
+			gpios = <8 GPIO_ACTIVE_HIGH>;
+			output-high;
+			line-name = "m2-modem-disable";
+		};
+
+		modem-power-hog {
+			gpio-hog;
+			gpios = <5 GPIO_ACTIVE_HIGH>;
+			output-high;
+			line-name = "m2-modem-power";
+		};
 	};
 
 	usb-typec@4e {
