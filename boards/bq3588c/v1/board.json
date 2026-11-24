@@ -26,7 +26,10 @@
       "linux": {
         "config": "linux.config",
         "dts": "rk3588-bearkey-bq3588c.dts",
-        "patches": ["patches/0001-pcie-train-bq3588c-before-dbi.patch"]
+        "patches": [
+          "patches/0001-pcie-train-bq3588c-before-dbi.patch",
+          "patches/0002-keep-bq3588c-usb2-hub-online.patch"
+        ]
       },
       "boot_fallback": "loader",
       "device": "/dev/mmcblk0",

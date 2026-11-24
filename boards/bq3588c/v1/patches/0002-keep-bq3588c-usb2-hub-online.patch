@@ -1,0 +1,18 @@
+diff --git a/drivers/phy/rockchip/phy-rockchip-inno-usb2.c b/drivers/phy/rockchip/phy-rockchip-inno-usb2.c
+--- a/drivers/phy/rockchip/phy-rockchip-inno-usb2.c
++++ b/drivers/phy/rockchip/phy-rockchip-inno-usb2.c
+@@ -558,6 +558,14 @@ static int rockchip_usb2phy_init(struct phy *phy)
+ 			dev_dbg(&rport->phy->dev, "mode %d\n", rport->mode);
+ 		}
+ 	} else if (rport->port_id == USB2PHY_PORT_HOST) {
++		/*
++		 * PHY3 feeds a fixed hub on the BQ3588C. Disconnect polling
++		 * can suspend it while EHCI still has the port enabled.
++		 * Let the host controller own the PHY power state.
++		 */
++		if (rphy->phy_cfg->reg == 0xc000 &&
++		    of_machine_is_compatible("bearkey,bq3588c"))
++			goto out;
+ 		if (rport->port_cfg->disfall_en.offset) {
+ 			rport->host_disconnect = true;
+ 			ret = rockchip_usb2phy_enable_host_disc_irq(rphy, rport, true);
