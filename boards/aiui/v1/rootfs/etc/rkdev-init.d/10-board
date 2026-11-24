@@ -1,13 +1,8 @@
 #!/bin/sh
 hostname aiui-recovery
-mkdir -p /run/sshd /var/empty
-chmod 755 /var/empty
 # A four-wire fan needs an actively driven zero-duty signal.
 for hwmon in /sys/class/hwmon/hwmon*; do
     [ "$(cat "$hwmon/name" 2>/dev/null)" = pwmfan ] || continue
     echo 2 > "$hwmon/pwm1_enable" || :
 done
 /bin/sh /usr/share/aiui/issue
-if ! (printf 'root:root\n' | busybox chpasswd && ssh-keygen -A && /usr/sbin/sshd); then
-    echo 'Recovery SSH startup failed' >/dev/console
-fi
