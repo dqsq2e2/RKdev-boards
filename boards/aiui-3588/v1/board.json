@@ -31,7 +31,6 @@
           "patches/dw-dp-reprobe-uninitialized-link.patch",
           "patches/rockchip-drm-nonzero-iova.patch",
           "patches/rockchip-gem-min-iova.patch",
-          "patches/fb-logo-late-display.patch",
           "patches/thermal-bang-bang-cooling-limits.patch"
         ]
       },

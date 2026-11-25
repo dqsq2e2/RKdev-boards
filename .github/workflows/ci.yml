@@ -11,10 +11,10 @@ on:
         options:
           - bdy-g98
           - phx-r3588
-          - i3588
-          - aiui
+          - 9tripod-i3588
+          - aiui-3588
           - aiot-3588a2
-          - bq3588c
+          - bearkey-bq3588c
       profile:
         description: 启动介质（default 使用板包默认值）
         type: choice
@@ -24,9 +24,6 @@ on:
           - default
           - spi
           - emmc
-      version:
-        description: 镜像版本（留空自动生成）
-        type: string
       publish:
         description: 构建成功后发布
         type: boolean
@@ -37,23 +34,31 @@ on:
 
 permissions:
   contents: read
+  actions: read
 
 jobs:
   build:
     name: 构建 ${{ inputs.board }}
-    runs-on: ${{ inputs.board == 'bq3588c' && 'ubuntu-24.04' || 'ubuntu-24.04-arm' }}
+    runs-on: ${{ inputs.board == 'bearkey-bq3588c' && 'ubuntu-24.04' || 'ubuntu-24.04-arm' }}
     timeout-minutes: 80
     env:
       RKDEV_BOARD: ${{ inputs.board }}
       RKDEV_PROFILE_INPUT: ${{ inputs.profile }}
     outputs:
       profile: ${{ steps.firmware.outputs.profile }}
-      version: ${{ steps.image.outputs.version }}
+      board_id: ${{ steps.image.outputs.board_id }}
+      version: ${{ steps.version.outputs.version }}
+      build_date: ${{ steps.version.outputs.build_date }}
     steps:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
       - uses: ./.github/actions/checkout-rkdev
+      - name: Resolve build version
+        id: version
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 ci/build_version.py
       - name: Lint selected board package
         shell: bash
         run: |
@@ -75,7 +80,7 @@ jobs:
           go-version-file: .rkdev/recovery/app/go.mod
           cache-dependency-path: .rkdev/recovery/app/go.sum
       - uses: docker/setup-qemu-action@v3
-        if: inputs.board == 'bq3588c'
+        if: inputs.board == 'bearkey-bq3588c'
         with:
           platforms: arm64
       - name: Install build tools
@@ -86,29 +91,32 @@ jobs:
             libssl-dev libgnutls28-dev libelf-dev libncurses-dev pkg-config \
             device-tree-compiler python3-dev python3-pyelftools python3-setuptools swig \
             u-boot-tools gdisk util-linux e2fsprogs cpio pigz xz-utils lz4 kmod zstd rsync
-          if [[ "$RKDEV_BOARD" == bq3588c ]]; then
+          if [[ "$RKDEV_BOARD" == bearkey-bq3588c ]]; then
             sudo apt-get install -y --no-install-recommends gcc-aarch64-linux-gnu
           fi
       - name: Build U-Boot and recovery image
         id: image
         env:
           RKDEV_PROFILE: ${{ steps.firmware.outputs.profile }}
-          RKDEV_VERSION: ${{ inputs.version }}
+          RKDEV_VERSION: ${{ steps.version.outputs.version }}
+          RKDEV_BUILD_DATE: ${{ steps.version.outputs.build_date }}
         shell: bash
         run: |
-          version=${RKDEV_VERSION:-0.1-ci.$GITHUB_RUN_NUMBER}
+          version=$RKDEV_VERSION
           git check-ref-format "refs/tags/$RKDEV_BOARD-$RKDEV_PROFILE-v$version"
           board="boards/$RKDEV_BOARD/v1"
           cross=
-          if [[ "$RKDEV_BOARD" == bq3588c ]]; then
+          if [[ "$RKDEV_BOARD" == bearkey-bq3588c ]]; then
             cross=aarch64-linux-gnu-
           fi
           mkdir -p out
-          sudo env "PATH=$PATH" python3 -u .rkdev/tools/rkdev.py build --locked \
+          sudo env "PATH=$PATH" "RKDEV_BUILD_DATE=$RKDEV_BUILD_DATE" python3 -u .rkdev/tools/rkdev.py build --locked \
             --board "$board" --profile "$RKDEV_PROFILE" --version "$version" --cross-compile="$cross" \
             --firmware-dir "$RUNNER_TEMP/firmware" --jobs "$(nproc)" --out out \
             2>&1 | tee out/build.log
-          image="$RKDEV_BOARD-v1-$RKDEV_PROFILE-$version"
+          board_id=$(python3 -c 'import json, sys; print(json.load(open(sys.argv[1]))["board_id"])' "$board/board.json")
+          echo "board_id=$board_id" >> "$GITHUB_OUTPUT"
+          image="$board_id-v1-$RKDEV_PROFILE-$version"
           python3 .rkdev/tools/rkdev.py verify --board "$board" --profile "$RKDEV_PROFILE" --image "out/$image.img"
           (
             cd out
@@ -120,7 +128,6 @@ jobs:
             sha256sum --check SHA256SUMS.release
             mv -f -- SHA256SUMS.release SHA256SUMS
           )
-          echo "version=$version" >> "$GITHUB_OUTPUT"
       - uses: actions/upload-artifact@v4
         with:
           name: rkdev-${{ inputs.board }}-${{ steps.firmware.outputs.profile }}
@@ -144,7 +151,7 @@ jobs:
     needs: build
     runs-on: ubuntu-24.04
     concurrency:
-      group: rkdev-release-${{ inputs.board }}
+      group: rkdev-release-${{ inputs.board }}-${{ needs.build.outputs.profile }}
       cancel-in-progress: false
     permissions:
       contents: write
@@ -161,7 +168,9 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
           RKDEV_BOARD: ${{ inputs.board }}
+          RKDEV_BOARD_ID: ${{ needs.build.outputs.board_id }}
           RKDEV_PROFILE: ${{ needs.build.outputs.profile }}
           RKDEV_VERSION: ${{ needs.build.outputs.version }}
+          RKDEV_BUILD_DATE: ${{ needs.build.outputs.build_date }}
         working-directory: release
         run: python3 ../ci/publish_release.py

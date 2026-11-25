@@ -13,14 +13,15 @@ import zipfile
 MAX_FILE = 64 * 1024 * 1024
 
 
-def unpack(bundle, board_id, files, out):
+def unpack(bundle, board_id, files, out, package_name=None):
     with zipfile.ZipFile(bundle) as archive:
         names = archive.namelist()
         for filename, checksum in files.items():
-            board_entry = f"{board_id}/{filename}"
-            entry = board_entry if board_entry in names else filename
+            candidates = list(dict.fromkeys([f"{package_name or board_id}/{filename}",
+                                             f"{board_id}/{filename}", filename]))
+            entry = next((name for name in candidates if name in names), candidates[0])
             if names.count(entry) != 1:
-                raise ValueError(f"firmware bundle needs exactly one entry for {board_entry}")
+                raise ValueError(f"firmware bundle needs exactly one entry for {candidates[0]}")
             member = archive.getinfo(entry)
             if not 0 < member.file_size <= MAX_FILE:
                 raise ValueError(f"invalid firmware size: {filename}")
@@ -53,7 +54,7 @@ def main():
         if files:
             url = os.environ.get("RKDEV_FIRMWARE_BUNDLE_URL", "")
             if args.bundle:
-                unpack(args.bundle, board["board_id"], files, args.out)
+                unpack(args.bundle, board["board_id"], files, args.out, args.board.parent.name)
             elif url.startswith("https://"):
                 with tempfile.TemporaryDirectory(prefix="rkdev-firmware-") as work:
                     bundle = Path(work) / "assets.zip"
@@ -65,7 +66,7 @@ def main():
                     )
                     if result.returncode:
                         raise ValueError("firmware bundle download failed")
-                    unpack(bundle, board["board_id"], files, args.out)
+                    unpack(bundle, board["board_id"], files, args.out, args.board.parent.name)
             else:
                 raise ValueError("set an HTTPS RKDEV_FIRMWARE_BUNDLE_URL for: " + ", ".join(sorted(files)))
         print(profile)

@@ -8,12 +8,20 @@ permissions:
   contents: read
 
 jobs:
+  ci:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - run: python3 -m unittest discover -s ci -p 'test_*.py'
+
   lint:
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
-        board: [bdy-g98, phx-r3588, i3588, aiui, aiot-3588a2, bq3588c]
+        board: [bdy-g98, phx-r3588, 9tripod-i3588, aiui-3588, aiot-3588a2, bearkey-bq3588c]
     steps:
       - uses: actions/checkout@v4
         with:
