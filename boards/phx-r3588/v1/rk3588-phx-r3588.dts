@@ -2023,10 +2023,7 @@
 		#size-cells = <0x2>;
 		status = "okay";
 		reset-gpios = <0x14f 0x15 0x0>;
-		vpcie3v3-supply = <0x13c>;
-		modem-pwr-gpios = <0x8f 0x4 0x0>;
-		modem-en-gpios = <0x14f 0xe 0x0>;
-		pcie-waken-gpios = <0x202 0x15 0x0>;
+		vpcie3v3-supply = <&vdd_5g>;
 		legacy-interrupt-controller {
 			interrupt-controller;
 			#address-cells = <0x0>;
@@ -3821,6 +3818,19 @@
 				output-high;
 				line-name = "usb-hub-reset";
 			};
+			/* J46 uses GPIO inputs for these signals and an always-on REFCLK. */
+			modem-clkreq {
+				gpio-hog;
+				gpios = <0x15 0x0>;
+				input;
+				line-name = "modem-clkreq";
+			};
+			modem-wake {
+				gpio-hog;
+				gpios = <0x17 0x0>;
+				input;
+				line-name = "modem-wake";
+			};
 		};
 		gpio@fec50000 {
 			compatible = "rockchip,gpio-bank";
@@ -3834,12 +3844,6 @@
 			#interrupt-cells = <0x2>;
 			gpio-line-names = "DSI1_08", "DSI1_14", "", "DSI1_12", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "CSI0_11", "CSI0_12", "", "", "", "", "", "", "", "", "", "";
 			phandle = <0x8f>;
-			modem-power {
-				gpio-hog;
-				gpios = <0x4 0x0>;
-				output-high;
-				line-name = "modem-power";
-			};
 		};
 		pcfg-pull-up {
 			bias-pull-up;
@@ -4837,8 +4841,8 @@
 				rockchip,pins = <0x2 0x15 0x0 0x124>;
 				phandle = <0x1db>;
 			};
-			modem-wakup {
-				rockchip,pins = <0x3 0x15 0x0 0x124>;
+			modem-wakeup {
+				rockchip,pins = <0x3 0x17 0x0 0x124>;
 				phandle = <0x1dc>;
 			};
 		};
@@ -5648,6 +5652,20 @@
 		regulator-min-microvolt = <0xb71b00>;
 		regulator-max-microvolt = <0xb71b00>;
 		phandle = <0x157>;
+	};
+	vdd_5g: regulator-vdd-5g {
+		compatible = "regulator-fixed";
+		regulator-name = "vdd_5g";
+		regulator-min-microvolt = <3750000>;
+		regulator-max-microvolt = <3750000>;
+		gpio = <0x8f 0x4 0x0>;
+		enable-active-high;
+		regulator-always-on;
+		regulator-boot-on;
+		startup-delay-us = <100000>;
+		pinctrl-names = "default";
+		pinctrl-0 = <0x1d9>;
+		vin-supply = <0x157>;
 	};
 	regulator-vcc5v0-sys {
 		compatible = "regulator-fixed";

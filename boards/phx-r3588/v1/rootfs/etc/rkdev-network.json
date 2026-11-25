@@ -1,0 +1,16 @@
+{
+  "ports": [
+    {"id": "pcie", "label": "RTL8111HS GbE", "device_path": "/a41000000.pcie"},
+    {"id": "gmac", "label": "RK3588 GbE", "device_path": "/fe1c0000.ethernet"},
+    {"id": "wifi", "label": "AP6275P Wi-Fi", "device_path": "/a40800000.pcie", "wireless": true}
+  ],
+  "defaults": {
+    "wan": {"port": "pcie", "mode": "dhcp", "address": "", "gateway": "", "dns": []},
+    "lan": {"ports": ["gmac"], "address": "192.168.88.1/24", "dhcp": true, "start": "192.168.88.100", "end": "192.168.88.200", "nat": true},
+    "wifi": {"mode": "ap", "ssid": "PHX-R3588-Recovery", "band": "2.4", "channel": 6}
+  },
+  "station": true,
+  "ap_bands": ["2.4"],
+  "iptables": "iptables-legacy",
+  "store_offset": 25165824
+}

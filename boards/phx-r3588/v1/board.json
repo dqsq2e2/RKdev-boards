@@ -106,5 +106,14 @@
       }
     }
   },
-  "rootfs_overlay": "rootfs"
+  "rootfs_overlay": "rootfs",
+  "rootfs_packages": [
+    "dnsmasq",
+    "hostapd",
+    "iproute2",
+    "iptables-legacy",
+    "iw",
+    "wireless-regdb",
+    "wpa_supplicant"
+  ]
 }
