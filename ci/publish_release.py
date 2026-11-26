@@ -14,7 +14,7 @@ from github import api, gh, optional_api, temporary_error
 from package_release import release_files
 
 VERSION = r"[A-Za-z0-9._-]{1,64}"
-VERSION_SCHEME = "board-profile-v3"
+VERSION_SCHEME = "board-profile-v4"
 VERSION_MARKER = f"<!-- rkdev-version-scheme: {VERSION_SCHEME} -->"
 RELEASE_BODY = f"完整启动镜像，包含主线 U-Boot 和 RKdev 恢复系统。\n\n{VERSION_MARKER}"
 

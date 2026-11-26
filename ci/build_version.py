@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Resolve a date-based version for one board and storage profile."""
+"""Resolve a build version for one board and storage profile."""
 
-from datetime import datetime, time, timedelta, timezone
+from datetime import datetime, timedelta, timezone
 import json
 import os
 from pathlib import Path
@@ -34,10 +34,10 @@ def _day(run):
         .astimezone(BUILD_TIMEZONE).date()
 
 
-def version_for_run(run, daily_runs, board, profile, default_profiles):
+def version_for_run(run, workflow_runs, board, profile, default_profiles):
     day = _day(run)
     key = (board, profile)
-    numbers = {entry["run_number"] for entry in daily_runs
+    numbers = {entry["run_number"] for entry in workflow_runs
                if entry["workflow_id"] == run["workflow_id"]
                and entry["run_number"] <= run["run_number"]
                and _day(entry) == day
@@ -55,17 +55,18 @@ def default_profile(board):
     return profile
 
 
+def default_profiles():
+    boards = Path(__file__).resolve().parents[1] / "boards"
+    return {path.name: default_profile(path.name) for path in boards.iterdir()
+            if (path / "v1" / "board.json").is_file()}
+
+
 def resolve(repo, run_id, board, profile):
     run = api(f"repos/{repo}/actions/runs/{run_id}")
-    timestamp = datetime.fromisoformat(run["created_at"].replace("Z", "+00:00")) \
-        .astimezone(BUILD_TIMEZONE)
-    start = datetime.combine(timestamp.date(), time(), BUILD_TIMEZONE)
-    end = start + timedelta(days=1, seconds=-1)
-    interval = "..".join(value.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ") for value in (start, end))
     pages = api("--paginate", "--slurp", f"repos/{repo}/actions/workflows/{run['workflow_id']}/runs"
-                f"?created={interval}&per_page=100")
+                "?per_page=100")
     return version_for_run(run, [entry for page in pages for entry in page["workflow_runs"]],
-                           board, profile, {board: default_profile(board)})
+                           board, profile, default_profiles())
 
 
 if __name__ == "__main__":
