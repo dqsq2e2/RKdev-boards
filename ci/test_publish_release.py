@@ -103,6 +103,17 @@ class Retention(unittest.TestCase):
             self.assertEqual({call.args[0] for call in remove.call_args_list}, {
                 f"{REPO_PATH}/releases/7", f"{REPO_PATH}/git/refs/tags/{legacy['tag_name']}"})
 
+    def test_previous_global_sequence_is_legacy_for_the_board_profile_scheme(self):
+        legacy = release("bdy-g98-emmc-2026-v11.26-r14", 8)
+        legacy["body"] = "<!-- rkdev-version-scheme: board-profile-v2 -->"
+
+        with patch("publish_release.api", return_value=[]), \
+                patch("publish_release.delete_resource") as remove:
+            reset_legacy_releases(REPO_PATH, [legacy], "bdy-g98", "bdy-g98", "emmc")
+
+        self.assertEqual({call.args[0] for call in remove.call_args_list}, {
+            f"{REPO_PATH}/releases/8"})
+
     def test_cleans_old_release_and_orphan_tags_for_renamed_package_only(self):
         current = release()
         old = release("bq3588c-emmc-v0.1-ci.21", 2)
