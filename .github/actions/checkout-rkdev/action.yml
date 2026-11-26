@@ -7,6 +7,6 @@ runs:
     - uses: actions/checkout@v4
       with:
         repository: dqsq2e2/RKdev
-        ref: 8b49f34d2a3e41f215880194c2ac5ffd965f42f5
+        ref: c6316364df5b6dd01fe5fb1b0dba0b2d09cda044
         path: .rkdev
         persist-credentials: false

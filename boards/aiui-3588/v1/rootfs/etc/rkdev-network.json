@@ -1,0 +1,15 @@
+{
+  "ports": [
+    {"id": "eth0", "label": "RTL8211F GbE", "device_path": "/fe1b0000.ethernet"},
+    {"id": "wifi", "label": "RTL8822CS Wi-Fi", "device_path": "/fe2d0000.mmc", "wireless": true}
+  ],
+  "defaults": {
+    "wan": {"port": "eth0", "mode": "dhcp", "address": "", "gateway": "", "dns": []},
+    "lan": {"ports": [], "address": "192.168.88.1/24", "dhcp": true, "start": "192.168.88.100", "end": "192.168.88.200", "nat": true},
+    "wifi": {"mode": "ap", "ssid": "lunzn-aiui", "band": "2.4", "channel": 6, "password": "12345678"}
+  },
+  "station": false,
+  "ap_bands": ["2.4"],
+  "iptables": "iptables-legacy",
+  "store_offset": 25165824
+}

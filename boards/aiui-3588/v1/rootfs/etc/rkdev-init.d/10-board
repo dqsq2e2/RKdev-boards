@@ -5,4 +5,3 @@ for hwmon in /sys/class/hwmon/hwmon*; do
     [ "$(cat "$hwmon/name" 2>/dev/null)" = pwmfan ] || continue
     echo 2 > "$hwmon/pwm1_enable" || :
 done
-/bin/sh /usr/share/aiui/issue

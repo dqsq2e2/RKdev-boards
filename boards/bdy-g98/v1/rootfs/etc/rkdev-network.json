@@ -1,0 +1,22 @@
+{
+  "ports": [
+    {"id": "wan1", "label": "2.5 GbE 1", "device_path": "/a40800000.pcie"},
+    {"id": "wan2", "label": "2.5 GbE 2", "device_path": "/a40c00000.pcie"},
+    {"id": "lan1", "label": "LAN 1", "device_path": "/ethernet@fe1c0000/mdio/switch@1d/ethernet-ports/ethernet-port@1"},
+    {"id": "lan2", "label": "LAN 2", "device_path": "/ethernet@fe1c0000/mdio/switch@1d/ethernet-ports/ethernet-port@2"},
+    {"id": "lan3", "label": "LAN 3", "device_path": "/ethernet@fe1c0000/mdio/switch@1d/ethernet-ports/ethernet-port@3"},
+    {"id": "lan4", "label": "LAN 4", "device_path": "/ethernet@fe1c0000/mdio/switch@1d/ethernet-ports/ethernet-port@4"},
+    {"id": "lan5", "label": "LAN 5", "device_path": "/ethernet@fe1b0000/mdio/switch@1d/ethernet-ports/ethernet-port@1"},
+    {"id": "lan6", "label": "LAN 6", "device_path": "/ethernet@fe1b0000/mdio/switch@1d/ethernet-ports/ethernet-port@2"},
+    {"id": "lan7", "label": "LAN 7", "device_path": "/ethernet@fe1b0000/mdio/switch@1d/ethernet-ports/ethernet-port@3"},
+    {"id": "lan8", "label": "LAN 8", "device_path": "/ethernet@fe1b0000/mdio/switch@1d/ethernet-ports/ethernet-port@4"}
+  ],
+  "defaults": {
+    "wan": {"port": "wan1", "mode": "dhcp", "address": "", "gateway": "", "dns": []},
+    "lan": {"ports": ["lan1", "lan2", "lan3", "lan4", "lan5", "lan6", "lan7", "lan8"], "address": "192.168.98.1/24", "dhcp": true, "start": "192.168.98.100", "end": "192.168.98.200", "nat": true},
+    "wifi": {"mode": "off", "ssid": "", "band": "", "channel": 0}
+  },
+  "station": false,
+  "ap_bands": [],
+  "iptables": "iptables-legacy"
+}

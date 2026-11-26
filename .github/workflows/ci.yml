@@ -96,6 +96,7 @@ jobs:
           fi
       - name: Build U-Boot and recovery image
         id: image
+        shell: bash
         env:
           RKDEV_PROFILE: ${{ steps.firmware.outputs.profile }}
           RKDEV_VERSION: ${{ steps.version.outputs.version }}
@@ -118,22 +119,20 @@ jobs:
           echo "board_id=$board_id" >> "$GITHUB_OUTPUT"
           image="$board_id-v1-$RKDEV_PROFILE-$version"
           python3 .rkdev/tools/rkdev.py verify --board "$board" --profile "$RKDEV_PROFILE" --image "out/$image.img"
-          (
-            cd out
-            # The build ran under sudo; replace its checksum file from the runner-owned directory.
-            {
-              cat SHA256SUMS
-              sha256sum "$image.json" u-boot-rockchip*.bin
-            } > SHA256SUMS.release
-            sha256sum --check SHA256SUMS.release
-            mv -f -- SHA256SUMS.release SHA256SUMS
-          )
+      - name: Package verified firmware
+        env:
+          RKDEV_BOARD_ID: ${{ steps.image.outputs.board_id }}
+          RKDEV_PROFILE: ${{ steps.firmware.outputs.profile }}
+          RKDEV_VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          python3 ci/package_release.py --out out --board "$RKDEV_BOARD" \
+            --board-id "$RKDEV_BOARD_ID" --profile "$RKDEV_PROFILE" --version "$RKDEV_VERSION"
       - uses: actions/upload-artifact@v4
         with:
           name: rkdev-${{ inputs.board }}-${{ steps.firmware.outputs.profile }}
+          compression-level: 0
           path: |
-            out/*.img
-            out/*.json
+            out/*.zip
             out/SHA256SUMS
             out/u-boot-rockchip*.bin
             out/build.log

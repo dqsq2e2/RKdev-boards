@@ -21,7 +21,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        board: [bdy-g98, phx-r3588, 9tripod-i3588, aiui-3588, aiot-3588a2, bearkey-bq3588c]
+        include:
+          - {board: bdy-g98, profile: spi}
+          - {board: bdy-g98, profile: emmc}
+          - {board: phx-r3588, profile: emmc}
+          - {board: 9tripod-i3588, profile: emmc}
+          - {board: aiui-3588, profile: emmc}
+          - {board: aiot-3588a2, profile: emmc}
+          - {board: bearkey-bq3588c, profile: emmc}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -29,4 +36,5 @@ jobs:
       - uses: ./.github/actions/checkout-rkdev
       - env:
           RKDEV_BOARD: ${{ matrix.board }}
-        run: python3 .rkdev/tools/rkdev.py lint --board "boards/$RKDEV_BOARD/v1"
+          RKDEV_PROFILE: ${{ matrix.profile }}
+        run: python3 .rkdev/tools/rkdev.py lint --board "boards/$RKDEV_BOARD/v1" --profile "$RKDEV_PROFILE"

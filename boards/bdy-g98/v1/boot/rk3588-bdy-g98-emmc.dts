@@ -1,0 +1,19 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/dts-v1/;
+
+#include "rk3588-bdy-g98-rkdev.dtsi"
+
+&sfc {
+	status = "disabled";
+};
+
+&sdhci {
+	bootph-all;
+	/delete-property/ mmc-hs400-1_8v;
+	/delete-property/ mmc-hs400-enhanced-strobe;
+	mmc-hs200-1_8v;
+};
+
+&sdmmc {
+	status = "disabled";
+};

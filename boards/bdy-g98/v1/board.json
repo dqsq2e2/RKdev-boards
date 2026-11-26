@@ -6,6 +6,12 @@
   "soc": "rk3588",
   "compatible": "bdy,bdy-g98",
   "default_profile": "spi",
+  "rootfs_overlay": "rootfs",
+  "rootfs_packages": [
+    "dnsmasq",
+    "iproute2",
+    "iptables-legacy"
+  ],
   "firmware": {
     "ddr": {
       "file": "rk3588_ddr_lp4_1800MHz_lp5_2400MHz_v1.21.bin",
@@ -20,11 +26,13 @@
     "spi": {
       "uboot": {
         "config": "uboot.config",
-        "dts": "boot/rk3588-bdy-g98.dts"
+        "dts": "boot/rk3588-bdy-g98.dts",
+        "overlay": "uboot-overlay"
       },
       "linux": {
         "config": "linux.config",
         "dts": "rk3588-bdy-g98-only-spi.dts",
+        "overlay": "linux-overlay",
         "patches": [
           "linux-net.patch"
         ]
@@ -68,8 +76,44 @@
         "root": 8,
         "args": "rootfstype=ext4 rootwait rw console=ttyS2,1500000n8 earlycon=uart8250,mmio32,0xfeb50000"
       },
-      "recovery_args": "console=ttyS2,1500000n8 earlycon=uart8250,mmio32,0xfeb50000 rootwait",
-      "release_url": "https://github.com/dqsq2e2/RKdev-boards/releases/latest/download/bdy-g98-v1-spi-release.json"
+      "recovery_args": "console=ttyS2,1500000n8 consoleblank=0 earlycon=uart8250,mmio32,0xfeb50000 loglevel=5 rootwait",
+      "release_url": "https://api.github.com/repos/dqsq2e2/RKdev-boards/releases",
+      "firmware": {
+        "rtl_nic/rtl8125b-2.fw": {
+          "url": "https://gitlab.com/kernel-firmware/linux-firmware/-/raw/a1ebb5ad7eae3caca60b8b3db5792cf43339ba58/rtl_nic/rtl8125b-2.fw",
+          "sha256": "529bf1c25c97ff52b401090d00ff89cc22351012336e5a0c9662728a3ee909ef"
+        }
+      }
+    },
+    "emmc": {
+      "uboot": {
+        "config": "uboot-emmc.config",
+        "dts": "boot/rk3588-bdy-g98-emmc.dts",
+        "overlay": "uboot-overlay"
+      },
+      "linux": {
+        "config": "linux.config",
+        "dts": "rk3588-bdy-g98-only-emmc.dts",
+        "overlay": "linux-overlay",
+        "patches": ["linux-net.patch"]
+      },
+      "boot_fallback": "loader",
+      "device": "/dev/mmcblk0",
+      "capacity": 536870912,
+      "loader": {"offset": 32768, "length": 16744448, "format": "rockchip-sd"},
+      "environment": {"offsets": [16777216, 16908288], "size": 131072},
+      "recovery": {"offset": 33554432, "length": 234863616, "label": "G98_RECOVERY", "partition": 1},
+      "system": {"offset": 268435456, "label": "G98_SYSTEM"},
+      "boot_order": ["usb", "nvme", "sata", "emmc"],
+      "key": {"type": "button", "label": "Recovery key", "action": "recovery"},
+      "recovery_args": "console=ttyS2,1500000n8 consoleblank=0 earlycon=uart8250,mmio32,0xfeb50000 loglevel=5",
+      "release_url": "https://api.github.com/repos/dqsq2e2/RKdev-boards/releases",
+      "firmware": {
+        "rtl_nic/rtl8125b-2.fw": {
+          "url": "https://gitlab.com/kernel-firmware/linux-firmware/-/raw/a1ebb5ad7eae3caca60b8b3db5792cf43339ba58/rtl_nic/rtl8125b-2.fw",
+          "sha256": "529bf1c25c97ff52b401090d00ff89cc22351012336e5a0c9662728a3ee909ef"
+        }
+      }
     }
   }
 }

@@ -78,6 +78,10 @@
         "wait_ms": 2500
       },
       "firmware": {
+        "arm/mali/arch10.8/mali_csffw.bin": {
+          "url": "https://gitlab.com/kernel-firmware/linux-firmware/-/raw/a1ebb5ad7eae3caca60b8b3db5792cf43339ba58/arm/mali/arch10.8/mali_csffw.bin",
+          "sha256": "a27847ea11f8efb3136340c3ba8aab413ae25145eeb4a7f64ff5edd829a2405b"
+        },
         "rtw88/rtw8822c_fw.bin": {
           "url": "https://gitlab.com/kernel-firmware/linux-firmware/-/raw/a1ebb5ad7eae3caca60b8b3db5792cf43339ba58/rtw88/rtw8822c_fw.bin",
           "sha256": "3deecb31210986d98cdbfb000391e08d602a6eee4ffc883969faa2b907ab03ba"
@@ -98,6 +102,6 @@
     "openssh-server",
     "openssh-sftp-server",
     "wireless-regdb",
-    "nftables"
+    "iptables-legacy"
   ]
 }

@@ -11,18 +11,19 @@ import sys
 import time
 
 from github import api, gh, optional_api, temporary_error
+from package_release import release_files
 
 VERSION = r"[A-Za-z0-9._-]{1,64}"
 
 
-def verify_files(files):
+def verify_files(files, root=Path(".")):
     expected = {}
     for name in files:
-        path = Path(name)
+        path = root / name
         with path.open("rb") as stream:
             digest = hashlib.file_digest(stream, "sha256").hexdigest()
         expected[name] = (path.stat().st_size, f"sha256:{digest}")
-    checksums = Path("SHA256SUMS").read_text(encoding="ascii").splitlines()
+    checksums = (root / "SHA256SUMS").read_text(encoding="ascii").splitlines()
     entries = {name: f"sha256:{digest}" for digest, name in (line.split("  ", 1) for line in checksums)}
     if len(checksums) != len(files) - 1 or entries != {name: expected[name][1] for name in files[:-1]}:
         raise ValueError("SHA256SUMS does not match the firmware files")
@@ -119,9 +120,7 @@ def publish(repo, commit, board, board_id, profile, version, build_date):
     if not re.fullmatch(rf"{day.month}\.{day.day}-r[1-9][0-9]*", version):
         raise ValueError("version does not match the build date")
     tag = f"{board}-{profile}-{day.year}-v{version}"
-    image = f"{board_id}-v1-{profile}-{version}"
-    loader = "u-boot-rockchip-spi.bin" if profile == "spi" else "u-boot-rockchip.bin"
-    files = [f"{image}.img", f"{image}.json", loader, "SHA256SUMS"]
+    files = release_files(board, profile, version)
     expected = verify_files(files)
 
     repo_path = f"repos/{repo}"

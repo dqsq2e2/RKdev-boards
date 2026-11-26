@@ -4,7 +4,7 @@ RKdev 的 Rockchip 板包和固件发布仓库。每个板包定义对应主板�
 
 | 主板 | 板包 | 启动介质 |
 | --- | --- | --- |
-| BDY-G98 | [`bdy-g98`](boards/bdy-g98/v1) | SPI NOR |
+| BDY-G98 | [`bdy-g98`](boards/bdy-g98/v1) | SPI NOR / eMMC |
 | PHX-R3588 | [`phx-r3588`](boards/phx-r3588/v1) | eMMC |
 | 九鼎 I3588 | [`9tripod-i3588`](boards/9tripod-i3588/v1) | eMMC |
 | LUNZN RK3588 AIUI | [`aiui-3588`](boards/aiui-3588/v1) | eMMC |
@@ -13,7 +13,9 @@ RKdev 的 Rockchip 板包和固件发布仓库。每个板包定义对应主板�
 
 ## 下载固件
 
-在 [Releases](https://github.com/dqsq2e2/RKdev-boards/releases) 按板型和介质下载 `.img`。完整镜像包含主线 U-Boot 和 RKdev 恢复系统；每个版本也提供独立 U-Boot、镜像清单和 `SHA256SUMS`。
+在 [Releases](https://github.com/dqsq2e2/RKdev-boards/releases) 按板型和启动介质下载固件 ZIP。解压后得到完整镜像 `.img` 和配套升级清单 `.json`。镜像包含主线 U-Boot 和 RKdev 恢复系统。发布页也提供独立的 U-Boot 和 `SHA256SUMS`。
+
+BDY-G98 的 SPI NOR 和 eMMC 共用引脚，请选择与硬件装配相符的版本。
 
 ## 构建与适配
 
