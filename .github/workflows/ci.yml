@@ -96,7 +96,6 @@ jobs:
           fi
       - name: Build U-Boot and recovery image
         id: image
-        shell: bash
         env:
           RKDEV_PROFILE: ${{ steps.firmware.outputs.profile }}
           RKDEV_VERSION: ${{ steps.version.outputs.version }}
