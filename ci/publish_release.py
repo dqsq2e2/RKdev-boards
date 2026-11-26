@@ -14,6 +14,9 @@ from github import api, gh, optional_api, temporary_error
 from package_release import release_files
 
 VERSION = r"[A-Za-z0-9._-]{1,64}"
+VERSION_SCHEME = "board-profile-v2"
+VERSION_MARKER = f"<!-- rkdev-version-scheme: {VERSION_SCHEME} -->"
+RELEASE_BODY = f"完整启动镜像，包含主线 U-Boot 和 RKdev 恢复系统。\n\n{VERSION_MARKER}"
 
 
 def verify_files(files, root=Path(".")):
@@ -56,7 +59,7 @@ def ensure_release(repo, commit, tag, title, files, expected):
             if current is None:
                 current = api("--method", "POST", f"{repo_path}/releases",
                               "-f", f"tag_name={tag}", "-f", f"target_commitish={commit}",
-                              "-f", f"name={title}", "-f", "body=完整启动镜像，包含主线 U-Boot 和 RKdev 恢复系统。",
+                              "-f", f"name={title}", "-f", f"body={RELEASE_BODY}",
                               "-F", "draft=true", "-f", "make_latest=false", retry=False)
             if current["prerelease"]:
                 raise ValueError(f"release {tag} is marked as a prerelease")
@@ -90,9 +93,37 @@ def delete_resource(path):
             raise
 
 
-def cleanup(repo_path, current, board, board_id, profile):
+def _release_patterns(board, board_id, profile):
     names = set((board, board_id))
     patterns = [re.compile(rf"{re.escape(name)}-{profile}-(?:[0-9]{{4}}-)?v{VERSION}") for name in names]
+    return names, patterns
+
+
+def _matches_profile(tag, patterns):
+    return any(pattern.fullmatch(tag) for pattern in patterns)
+
+
+def _current_scheme(release):
+    return VERSION_MARKER in (release.get("body") or "")
+
+
+def reset_legacy_releases(repo_path, releases, board, board_id, profile):
+    """Remove releases and tags created before the board/profile sequence was introduced."""
+    names, patterns = _release_patterns(board, board_id, profile)
+    for release in releases:
+        if _matches_profile(release["tag_name"], patterns):
+            delete_resource(f"{repo_path}/releases/{release['id']}")
+            print(f"Removed legacy release {release['tag_name']}")
+    for name in sorted(names):
+        for ref in api(f"{repo_path}/git/matching-refs/tags/{name}-{profile}-"):
+            tag = ref["ref"].removeprefix("refs/tags/")
+            if _matches_profile(tag, patterns):
+                delete_resource(f"{repo_path}/git/refs/tags/{tag}")
+                print(f"Removed legacy tag {tag}")
+
+
+def cleanup(repo_path, current, board, board_id, profile):
+    names, patterns = _release_patterns(board, board_id, profile)
     order = release_order(current["tag_name"], board, profile)
 
     def superseded(tag):
@@ -125,6 +156,11 @@ def publish(repo, commit, board, board_id, profile, version, build_date):
 
     repo_path = f"repos/{repo}"
     releases = list_releases(repo_path)
+    matching = [release for release in releases
+                if _matches_profile(release["tag_name"], _release_patterns(board, board_id, profile)[1])]
+    if not any(_current_scheme(release) for release in matching):
+        reset_legacy_releases(repo_path, matching, board, board_id, profile)
+        releases = list_releases(repo_path)
     order = release_order(tag, board, profile)
     if any(not release["draft"] and release_order(release["tag_name"], board, profile) > order
            for release in releases):

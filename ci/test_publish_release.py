@@ -3,7 +3,7 @@ import subprocess
 import unittest
 from unittest.mock import patch
 
-from publish_release import cleanup, ensure_release, publish
+from publish_release import VERSION_MARKER, cleanup, ensure_release, publish, reset_legacy_releases
 
 
 REPO = "owner/boards"
@@ -15,6 +15,7 @@ EXPECTED = {"firmware.img": (1024, "sha256:abc")}
 
 def release(tag=TAG, number=1, draft=False):
     return {"id": number, "tag_name": tag, "draft": draft, "prerelease": False,
+            "body": VERSION_MARKER,
             "published_at": None if draft else "2026-11-26T00:00:00Z",
             "html_url": f"https://github.com/{REPO}/releases/tag/{tag}",
             "assets": [{"name": name, "size": size, "digest": digest, "state": "uploaded"}
@@ -89,6 +90,19 @@ class PublishRecovery(unittest.TestCase):
 
 
 class Retention(unittest.TestCase):
+    def test_first_new_scheme_build_removes_legacy_release_and_tags(self):
+        legacy = release("bearkey-bq3588c-emmc-2026-v11.26-r14", 7)
+        legacy["body"] = "旧版本说明"
+
+        def refs(path):
+            return [{"ref": f"refs/tags/{legacy['tag_name']}"}] if "/bearkey-" in path else []
+
+        with patch("publish_release.api", side_effect=refs), \
+                patch("publish_release.delete_resource") as remove:
+            reset_legacy_releases(REPO_PATH, [legacy], "bearkey-bq3588c", "bq3588c", "emmc")
+            self.assertEqual({call.args[0] for call in remove.call_args_list}, {
+                f"{REPO_PATH}/releases/7", f"{REPO_PATH}/git/refs/tags/{legacy['tag_name']}"})
+
     def test_cleans_old_release_and_orphan_tags_for_renamed_package_only(self):
         current = release()
         old = release("bq3588c-emmc-v0.1-ci.21", 2)

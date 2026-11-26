@@ -1,5 +1,5 @@
 name: 按板型构建并发布
-run-name: 构建 ${{ inputs.board }} · ${{ inputs.profile }}
+run-name: RKdev 构建 ${{ inputs.board }} · ${{ inputs.profile }}
 
 on:
   workflow_dispatch:
@@ -54,11 +54,6 @@ jobs:
         with:
           persist-credentials: false
       - uses: ./.github/actions/checkout-rkdev
-      - name: Resolve build version
-        id: version
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: python3 ci/build_version.py
       - name: Lint selected board package
         shell: bash
         run: |
@@ -75,6 +70,12 @@ jobs:
           profile=$(python3 ci/firmware_bundle.py --rkdev .rkdev --board "boards/$RKDEV_BOARD/v1" \
             --profile "$RKDEV_PROFILE_INPUT" --out "$RUNNER_TEMP/firmware")
           echo "profile=$profile" >> "$GITHUB_OUTPUT"
+      - name: Resolve build version
+        id: version
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RKDEV_PROFILE: ${{ steps.firmware.outputs.profile }}
+        run: python3 ci/build_version.py
       - uses: actions/setup-go@v5
         with:
           go-version-file: .rkdev/recovery/app/go.mod
